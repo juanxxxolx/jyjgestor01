@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro | JYJGESTOR</title>
+
+    <link rel="stylesheet" href="registro.css">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap"
+        rel="stylesheet"
+    >
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+
+    <main class="main-container">
+
+        <div class="presentation-box">
+
+            <!-- LOGO -->
+            <div class="logo-container">
+
+                <svg data-lucide="gem" class="logo-icon"></svg>
+
+                <h1 class="logo-text">
+                    JYJGESTOR
+                </h1>
+
+            </div>
+
+            <!-- TITULO -->
+            <h2 class="form-title">
+                Crear una Cuenta
+            </h2>
+
+            <!-- FORMULARIO -->
+            <form class="auth-form" id="registerForm">
+
+                <!-- NOMBRE -->
+                <div class="form-group">
+
+                    <label for="nombre">
+                        Tu Nombre Completo
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nombre"
+                        name="nombre"
+                        placeholder="Juan Pablo Montoya"
+                        required
+                    >
+
+                </div>
+
+                <!-- USUARIO -->
+                <div class="form-group">
+
+                    <label for="usuario">
+                        Nombre de Usuario
+                    </label>
+
+                    <input
+                        type="text"
+                        id="usuario"
+                        name="usuario"
+                        placeholder="juan123"
+                        required
+                    >
+
+                </div>
+
+                <!-- EMAIL -->
+                <div class="form-group">
+
+                    <label for="email-reg">
+                        Correo Electrónico
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email-reg"
+                        name="email"
+                        placeholder="tu.correo@ejemplo.com"
+                        required
+                    >
+
+                </div>
+
+                <!-- PASSWORD -->
+                <div class="form-group">
+
+                    <label for="password-reg">
+                        Contraseña
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password-reg"
+                        name="password"
+                        placeholder="Mínimo 8 caracteres"
+                        required
+                    >
+
+                </div>
+
+                <!-- CONFIRMAR PASSWORD -->
+                <div class="form-group">
+
+                    <label for="confirm-password">
+                        Confirmar Contraseña
+                    </label>
+
+                    <input
+                        type="password"
+                        id="confirm-password"
+                        name="confirm-password"
+                        placeholder="Repite tu contraseña"
+                        required
+                    >
+
+                </div>
+
+                <!-- BOTÓN -->
+                <button
+                    type="submit"
+                    class="btn btn-register full-width"
+                >
+                    Registrarse en JYJGESTOR
+                </button>
+
+            </form>
+
+            <!-- FOOTER -->
+            <div class="form-footer">
+
+                <p>
+                    ¿Ya tienes cuenta?
+
+                    <a href="../login/login.html" class="footer-link">
+                        Iniciar Sesión
+                    </a>
+                </p>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+    </script>
+
+    <script src="registro.js"></script>
+
+</body>
+</html>

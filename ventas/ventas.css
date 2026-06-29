@@ -1,0 +1,412 @@
+/* ========================================= */
+/* VARIABLES GLOBALES */
+/* ========================================= */
+:root {
+    --color-bg: #12121e;
+    --color-card: #1e1a47;
+    --color-card-light: #25205c;
+
+    --color-primary: #8A2BE2;
+    --color-primary-hover: #9d4dff;
+
+    --color-cyan: #00FFFF;
+
+    --color-text: #ffffff;
+    --color-text-soft: #a0a0b0;
+
+    --color-border: rgba(0, 255, 255, 0.12);
+
+    --shadow-main: 0 10px 25px rgba(0, 0, 0, 0.45);
+}
+
+/* ========================================= */
+/* RESET */
+/* ========================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--color-bg);
+    font-family: 'Inter', sans-serif;
+    color: var(--color-text);
+    padding: 30px;
+}
+
+/* ========================================= */
+/* MAIN */
+/* ========================================= */
+.dashboard-content {
+    width: 100%;
+}
+
+/* ========================================= */
+/* HEADER */
+/* ========================================= */
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    gap: 20px;
+}
+
+.page-title {
+    font-size: 2.3rem;
+    font-weight: 900;
+    color: var(--color-text);
+}
+
+/* ========================================= */
+/* BOTÓN VOLVER */
+/* ========================================= */
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.back-button {
+    background: #2c4565;
+    color: white;
+    text-decoration: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 700;
+    transition: 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.back-button:hover {
+    background: #3b5d89;
+    transform: translateY(-2px);
+}
+
+/* ========================================= */
+/* CONTENEDOR */
+/* ========================================= */
+.sales-section {
+    width: 100%;
+}
+
+.sales-container {
+    display: grid;
+    grid-template-columns: 1.4fr 0.8fr;
+    gap: 25px;
+}
+
+/* ========================================= */
+/* TARJETAS */
+/* ========================================= */
+.sales-form-panel,
+.sales-summary-panel {
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    padding: 30px;
+    box-shadow: var(--shadow-main);
+}
+
+/* ========================================= */
+/* TITULOS */
+/* ========================================= */
+.sales-form-panel h2,
+.sales-summary-panel h2 {
+    font-size: 1.8rem;
+    color: var(--color-cyan);
+    margin-bottom: 25px;
+    font-weight: 800;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 15px;
+}
+
+.form-group {
+    margin-bottom: 30px;
+}
+
+.form-group h3 {
+    margin-bottom: 18px;
+    font-size: 1.1rem;
+}
+
+/* ========================================= */
+/* FILAS */
+/* ========================================= */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.form-field,
+.product-field,
+.product-field-small {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ========================================= */
+/* LABELS */
+/* ========================================= */
+label {
+    color: var(--color-text-soft);
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* ========================================= */
+/* INPUTS */
+/* ========================================= */
+input,
+textarea {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: white;
+    border-radius: 10px;
+    padding: 13px 14px;
+    font-size: 0.95rem;
+    transition: 0.3s ease;
+    width: 100%;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--color-cyan);
+    box-shadow: 0 0 15px rgba(0,255,255,0.15);
+}
+
+/* ========================================= */
+/* PRODUCTOS */
+/* ========================================= */
+.group-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.btn-add-product {
+    background: var(--color-primary);
+    border: none;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btn-add-product:hover {
+    background: var(--color-primary-hover);
+    transform: translateY(-2px);
+}
+
+#productosContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.product-row {
+    display: grid;
+    grid-template-columns: 1fr 120px 160px 50px;
+    gap: 12px;
+    align-items: end;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.product-remove button {
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 59, 59, 0.12);
+    color: #ff5c5c;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.product-remove button:hover {
+    background: rgba(255, 59, 59, 0.25);
+}
+
+/* ========================================= */
+/* RESUMEN */
+/* ========================================= */
+.summary-section {
+    margin-bottom: 28px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 18px;
+}
+
+.summary-section h4 {
+    color: var(--color-cyan);
+    margin-bottom: 15px;
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 15px;
+}
+
+.summary-item .label {
+    color: var(--color-text-soft);
+}
+
+.summary-item .value {
+    font-weight: 600;
+    text-align: right;
+}
+
+.summary-products {
+    background: rgba(255,255,255,0.03);
+    border-radius: 12px;
+    padding: 15px;
+    min-height: 100px;
+}
+
+.empty-message {
+    color: var(--color-text-soft);
+    text-align: center;
+}
+
+/* ========================================= */
+/* TOTALES */
+/* ========================================= */
+.summary-totals {
+    background: var(--color-card-light);
+    border-radius: 15px;
+    padding: 22px;
+    margin-bottom: 25px;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 10px;
+}
+
+.discount-input,
+.tax-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.discount-input input,
+.tax-input input {
+    width: 80px;
+    padding: 8px;
+}
+
+.final-total {
+    border-top: 2px solid var(--color-cyan);
+    padding-top: 18px;
+    margin-top: 20px;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--color-cyan);
+}
+
+/* ========================================= */
+/* BOTONES */
+/* ========================================= */
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.btn {
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.btn-secondary {
+    background: #24395a;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #32517d;
+}
+
+.btn-success {
+    background: var(--color-primary);
+    color: white;
+}
+
+.btn-success:hover {
+    background: var(--color-primary-hover);
+    transform: translateY(-2px);
+}
+
+/* ========================================= */
+/* RESPONSIVE */
+/* ========================================= */
+@media (max-width: 1100px) {
+    .sales-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+
+    body {
+        padding: 20px;
+    }
+
+    .content-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .actions {
+        width: 100%;
+    }
+
+    .back-button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .product-row {
+        grid-template-columns: 1fr;
+    }
+
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+}

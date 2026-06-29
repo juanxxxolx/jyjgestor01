@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Ventas</title>
+
+    <link rel="stylesheet" href="reportes.css">
+    <link rel="stylesheet" href="ventas.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+</head>
+
+<body>
+
+    <main class="dashboard-content">
+
+        <!-- HEADER -->
+        <header class="content-header">
+
+            <h1 class="page-title">
+                Gestión de Ventas
+            </h1>
+
+            <div class="actions">
+                <a href="../pagina_principal/pg_principal.html"
+                   class="btn btn-secondary back-button">
+                    ← Volver al Dashboard
+                </a>
+            </div>
+
+        </header>
+
+        <!-- SECCIÓN DE VENTAS -->
+        <section class="sales-section">
+
+            <div class="sales-container">
+
+                <!-- PANEL IZQUIERDO -->
+                <div class="sales-form-panel">
+
+                    <h2>Registrar Nueva Venta</h2>
+
+                    <!-- CLIENTE -->
+                    <div class="form-group">
+
+                        <h3>Información del Cliente</h3>
+
+                        <div class="form-row">
+
+                            <div class="form-field">
+                                <label for="clientName">
+                                    Nombre del Cliente *
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="clientName"
+                                    placeholder="Juan Pérez"
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-field">
+                                <label for="clientPhone">
+                                    Teléfono
+                                </label>
+
+                                <input
+                                    type="tel"
+                                    id="clientPhone"
+                                    placeholder="+57 300 000 0000"
+                                >
+                            </div>
+
+                        </div>
+
+                        <div class="form-row">
+
+                            <div class="form-field">
+                                <label for="clientEmail">
+                                    Correo Electrónico
+                                </label>
+
+                                <input
+                                    type="email"
+                                    id="clientEmail"
+                                    placeholder="cliente@example.com"
+                                >
+                            </div>
+
+                            <div class="form-field">
+                                <label for="clientDocument">
+                                    Documento / Cédula
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="clientDocument"
+                                    placeholder="CC: 1000000000"
+                                >
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- PRODUCTOS -->
+                    <div class="form-group">
+
+                        <div class="group-header">
+
+                            <h3>Productos</h3>
+
+                            <button
+                                type="button"
+                                class="btn-add-product"
+                                onclick="agregarProducto()"
+                            >
+                                + Agregar Producto
+                            </button>
+
+                        </div>
+
+                        <div id="productosContainer">
+
+                            <div class="product-row">
+
+                                <div class="product-field">
+
+                                    <label>
+                                        Nombre/Descripción *
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        class="product-name"
+                                        placeholder="Ej: Laptop Dell XPS 13"
+                                        required
+                                    >
+
+                                </div>
+
+                                <div class="product-field-small">
+
+                                    <label>
+                                        Cantidad *
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        class="product-quantity"
+                                        value="1"
+                                        min="1"
+                                        required
+                                    >
+
+                                </div>
+
+                                <div class="product-field-small">
+
+                                    <label>
+                                        Precio Unitario *
+                                    </label>
+
+                                    <input
+                                        type="number"
+                                        class="product-price"
+                                        placeholder="0.00"
+                                        step="0.01"
+                                        min="0"
+                                        required
+                                    >
+
+                                </div>
+
+                                <div class="product-remove">
+
+                                    <button
+                                        type="button"
+                                        onclick="this.parentElement.parentElement.remove(); calcularTotal()"
+                                    >
+                                        ×
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- OBSERVACIONES -->
+                    <div class="form-group">
+
+                        <label for="observations">
+                            Observaciones
+                        </label>
+
+                        <textarea
+                            id="observations"
+                            placeholder="Notas adicionales sobre la venta..."
+                            rows="3"
+                        ></textarea>
+
+                    </div>
+
+                </div>
+
+                <!-- PANEL DERECHO -->
+                <div class="sales-summary-panel">
+
+                    <h2>Resumen de Venta</h2>
+
+                    <div class="summary-section">
+
+                        <h4>Detalles del Cliente</h4>
+
+                        <div class="summary-item">
+                            <span class="label">Nombre:</span>
+                            <span class="value" id="summaryName">-</span>
+                        </div>
+
+                        <div class="summary-item">
+                            <span class="label">Teléfono:</span>
+                            <span class="value" id="summaryPhone">-</span>
+                        </div>
+
+                        <div class="summary-item">
+                            <span class="label">Correo:</span>
+                            <span class="value" id="summaryEmail">-</span>
+                        </div>
+
+                        <div class="summary-item">
+                            <span class="label">Documento:</span>
+                            <span class="value" id="summaryDocument">-</span>
+                        </div>
+
+                    </div>
+
+                    <div class="summary-section">
+
+                        <h4>
+                            Productos (
+                            <span id="productCount">0</span>
+                            )
+                        </h4>
+
+                        <div id="summaryProducts" class="summary-products">
+                            <p class="empty-message">
+                                Sin productos agregados
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- TOTALES -->
+                    <div class="summary-totals">
+
+                        <div class="total-row">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+
+                        <div class="total-row">
+
+                            <label for="discountInput">
+                                Descuento (%):
+                            </label>
+
+                            <div class="discount-input">
+
+                                <input
+                                    type="number"
+                                    id="discountInput"
+                                    value="0"
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                    onchange="calcularTotal()"
+                                >
+
+                                <span>%</span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="total-row discount-amount">
+                            <span>Descuento:</span>
+                            <span id="discountAmount">$0.00</span>
+                        </div>
+
+                        <div class="total-row tax">
+
+                            <label for="taxInput">
+                                IVA (%):
+                            </label>
+
+                            <div class="tax-input">
+
+                                <input
+                                    type="number"
+                                    id="taxInput"
+                                    value="19"
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                    onchange="calcularTotal()"
+                                >
+
+                                <span>%</span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="total-row tax-amount">
+                            <span>IVA:</span>
+                            <span id="taxAmount">$0.00</span>
+                        </div>
+
+                        <div class="total-row final-total">
+                            <span>Total:</span>
+                            <span id="finalTotal">$0.00</span>
+                        </div>
+
+                    </div>
+
+                    <!-- BOTONES -->
+                    <div class="action-buttons">
+
+                        <button
+                            class="btn btn-secondary"
+                            onclick="limpiarFormulario()"
+                        >
+                            Limpiar
+                        </button>
+
+                        <button
+                            class="btn btn-success"
+                            onclick="registrarVenta()"
+                        >
+                            Registrar Venta
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="../frontend/shared/api.js"></script>
+    <script src="ventas.js"></script>
+
+</body>
+</html>

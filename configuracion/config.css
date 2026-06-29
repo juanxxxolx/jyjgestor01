@@ -1,0 +1,177 @@
+/* ========================================= */
+/* 1. VARIABLES GLOBALES Y RESET (Base) */
+/* ========================================= */
+:root {
+    /* Colores base del tema oscuro */
+    --color-bg-dark: #12121e;
+    --color-primary: #8A2BE2;       /* Púrpura (Botón Guardar) */
+    --color-secondary: #00FFFF;     /* Cian (Acento/Glow) */
+    --color-text-main: #EFEFEF;
+    --color-text-sub: #A0A0B0;
+    --color-card-bg: #1e1a47;       /* Fondo de contenedores y formularios */
+    --color-border-sub: rgba(0, 255, 255, 0.1);
+    
+    /* Colores Específicos de Configuración */
+    --color-active-bg: rgba(0, 255, 255, 0.1); /* Fondo del menú activo */
+    --color-input-disabled: #2a265e;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-main);
+    padding: 30px;
+}
+
+.btn {
+    text-decoration: none;
+    font-weight: 700;
+    padding: 12px 25px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+
+/* ========================================= */
+/* 2. ESTRUCTURA GENERAL */
+/* ========================================= */
+.dashboard-content {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.content-header {
+    margin-bottom: 30px;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* Contenedor principal de 2 columnas */
+.config-container {
+    display: flex;
+    gap: 30px;
+    background-color: var(--color-card-bg);
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    min-height: 500px;
+}
+
+
+/* ========================================= */
+/* 3. MENÚ LATERAL DE CONFIGURACIÓN */
+/* ========================================= */
+
+.config-sidebar {
+    flex: 0 0 220px; /* Ancho fijo para la barra lateral */
+    display: flex;
+    flex-direction: column;
+    padding-right: 20px;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.config-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    text-decoration: none;
+    color: var(--color-text-sub);
+    border-radius: 6px;
+    transition: background-color 0.2s, color 0.2s;
+    font-weight: 600;
+}
+
+.link-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.config-link:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--color-text-main);
+}
+
+.config-link.active {
+    background-color: var(--color-active-bg);
+    color: var(--color-secondary);
+    border-left: 4px solid var(--color-secondary);
+    padding-left: 11px; /* Ajuste para compensar el borde */
+}
+
+
+/* ========================================= */
+/* 4. ÁREA DE CONTENIDO Y FORMULARIOS */
+/* ========================================= */
+
+.config-content {
+    flex-grow: 1;
+    padding-left: 10px;
+}
+
+.content-title {
+    font-size: 1.8rem;
+    color: var(--color-secondary);
+    margin-bottom: 25px;
+}
+
+.card-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-sub);
+}
+
+.form-group input {
+    width: 100%;
+    max-width: 450px; /* Limita el ancho de los inputs */
+    padding: 12px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    border-radius: 6px;
+    color: var(--color-text-main);
+    font-size: 1rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 5px rgba(0, 255, 255, 0.7);
+}
+
+.form-group input:disabled {
+    background-color: var(--color-input-disabled);
+    color: var(--color-text-sub);
+    border-color: rgba(255, 255, 255, 0.1);
+    cursor: not-allowed;
+}
+
+/* Botón Guardar Cambios */
+.btn-primary.save-button {
+    width: fit-content;
+    margin-top: 15px;
+}

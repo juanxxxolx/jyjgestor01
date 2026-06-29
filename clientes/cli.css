@@ -1,0 +1,427 @@
+/* ========================================= */
+/* 1. VARIABLES CSS */
+/* ========================================= */
+
+:root {
+    --color-bg: #1A1A2E;
+    --color-surface: #2A2A4A;
+    --color-header-bg: #311B92;
+
+    --color-neon-blue: #00FFFF;
+    --color-text-main: #FFFFFF;
+    --color-text-sub: #A0A0B0;
+
+    --color-success: #2ECC71;
+    --color-warning: #F39C12;
+    --color-danger: #E74C3C;
+    --color-inactive: #5A5A5A;
+}
+
+/* ========================================= */
+/* 2. RESET */
+/* ========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text-main);
+    min-height: 100vh;
+}
+
+/* ========================================= */
+/* 3. CONTENEDOR PRINCIPAL */
+/* ========================================= */
+
+.dashboard-content {
+    padding: 40px;
+    width: 100%;
+}
+
+/* ========================================= */
+/* 4. HEADER */
+/* ========================================= */
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 800;
+}
+
+.header-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ========================================= */
+/* 5. BOTONES */
+/* ========================================= */
+
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    padding: 12px 18px;
+
+    border: none;
+    border-radius: 8px;
+
+    cursor: pointer;
+    text-decoration: none;
+
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.btn-primary {
+    background-color: var(--color-neon-blue);
+    color: var(--color-bg);
+}
+
+.btn-primary:hover {
+    background-color: #66FFFF;
+}
+
+.btn-secondary {
+    background-color: #34495E;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #496277;
+}
+
+.icon-small {
+    width: 18px;
+    height: 18px;
+}
+
+/* ========================================= */
+/* 6. SECCIÓN PRINCIPAL */
+/* ========================================= */
+
+.data-section {
+    background-color: var(--color-surface);
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+/* ========================================= */
+/* 7. BUSCADOR */
+/* ========================================= */
+
+.search-bar {
+    width: 100%;
+    max-width: 420px;
+
+    display: flex;
+    align-items: center;
+
+    background-color: rgba(255,255,255,0.05);
+
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+
+    padding: 10px 15px;
+
+    margin-bottom: 25px;
+}
+
+.search-icon {
+    width: 18px;
+    height: 18px;
+    color: var(--color-text-sub);
+    margin-right: 10px;
+}
+
+.search-bar input {
+    flex: 1;
+
+    background: transparent;
+    border: none;
+    outline: none;
+
+    color: white;
+    font-size: 0.95rem;
+}
+
+/* ========================================= */
+/* 8. TABLA */
+/* ========================================= */
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    min-width: 950px;
+
+    border-collapse: collapse;
+    overflow: hidden;
+
+    border-radius: 10px;
+}
+
+.data-table thead {
+    background-color: var(--color-header-bg);
+}
+
+.data-table th {
+    padding: 15px;
+    text-align: left;
+
+    color: var(--color-neon-blue);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.data-table td {
+    padding: 14px 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.data-table tbody tr {
+    transition: 0.2s;
+}
+
+.data-table tbody tr:hover {
+    background-color: rgba(255,255,255,0.05);
+}
+
+/* ========================================= */
+/* 9. BADGES */
+/* ========================================= */
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.status-active {
+    background-color: rgba(46, 204, 113, 0.2);
+    color: var(--color-success);
+}
+
+.status-inactive {
+    background-color: rgba(90, 90, 90, 0.3);
+    color: var(--color-inactive);
+}
+
+/* ========================================= */
+/* 10. BOTONES ACCIONES */
+/* ========================================= */
+
+.action-btn {
+    background: transparent;
+    border: none;
+
+    cursor: pointer;
+
+    padding: 6px;
+    border-radius: 6px;
+
+    transition: 0.2s;
+}
+
+.action-btn:hover {
+    background-color: rgba(255,255,255,0.08);
+}
+
+.edit-btn svg {
+    width: 18px;
+    height: 18px;
+    color: var(--color-warning);
+}
+
+.delete-btn svg {
+    width: 18px;
+    height: 18px;
+    color: var(--color-danger);
+}
+
+/* ========================================= */
+/* 11. FOOTER TABLA */
+/* ========================================= */
+
+.table-footer {
+    margin-top: 20px;
+    color: var(--color-text-sub);
+    font-size: 0.9rem;
+}
+
+/* ========================================= */
+/* 12. MODAL */
+/* ========================================= */
+
+.modal {
+    display: none;
+
+    position: fixed;
+    inset: 0;
+
+    z-index: 1000;
+
+    background-color: rgba(0,0,0,0.7);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    width: 90%;
+    max-width: 600px;
+
+    background-color: var(--color-surface);
+
+    margin: 60px auto;
+    padding: 30px;
+
+    border-radius: 14px;
+
+    position: relative;
+
+    box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+.modal-title {
+    color: var(--color-neon-blue);
+    margin-bottom: 25px;
+
+    border-bottom: 2px solid rgba(0,255,255,0.2);
+    padding-bottom: 15px;
+}
+
+.close-button {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+
+    font-size: 28px;
+    cursor: pointer;
+
+    color: var(--color-text-sub);
+}
+
+.close-button:hover {
+    color: white;
+}
+
+/* ========================================= */
+/* 13. FORMULARIO */
+/* ========================================= */
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-group label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    color: var(--color-text-sub);
+    font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+
+    padding: 12px;
+
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.08);
+
+    background-color: var(--color-bg);
+    color: white;
+
+    outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--color-neon-blue);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+
+    margin-top: 25px;
+}
+
+/* ========================================= */
+/* 14. RESPONSIVE */
+/* ========================================= */
+
+@media (max-width: 768px) {
+
+    .dashboard-content {
+        padding: 20px;
+    }
+
+    .content-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn {
+        width: 100%;
+    }
+
+    .search-bar {
+        max-width: 100%;
+    }
+
+    .form-group-grid {
+        grid-template-columns: 1fr;
+    }
+
+}

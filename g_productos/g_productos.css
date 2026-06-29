@@ -1,0 +1,296 @@
+/* ========================================= */
+/* 1. VARIABLES CSS (Tema Oscuro y Colores Neón) */
+/* ========================================= */
+:root {
+    /* Fondos */
+    --color-bg: #1A1A2E; 			 
+    --color-surface: #2A2A4A; 		 
+    --color-header-bg: #311B92; 	 
+    
+    /* Acentos y Texto */
+    --color-neon-blue: #00FFFF;
+    --color-text-main: #FFFFFF;
+    --color-text-sub: #A0A0B0;
+    
+    /* Colores de Estado */
+    --color-success: #2ECC71; /* Verde */
+    --color-warning: #F39C12; /* Amarillo */
+    --color-danger: #E74C3C;  /* Rojo */
+    --color-inactive: #5A5A5A; /* Gris */
+}
+
+/* ========================================= */
+/* 2. ESTILOS GLOBALES Y LAYOUT */
+/* ========================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text-main);
+    min-height: 100vh;
+}
+
+.dashboard-content {
+    padding: 40px;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* --- Botones --- */
+.btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.2s;
+    text-decoration: none; /* Importante para el botón 'a' (volver) */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background-color: var(--color-neon-blue);
+    color: var(--color-bg); 
+}
+
+.btn-primary:hover {
+    background-color: #66FFFF;
+}
+
+.btn-secondary {
+    background-color: #34495E;
+    color: var(--color-text-main);
+}
+
+.btn-secondary:hover {
+    background-color: #496277;
+}
+
+
+/* --- Barra de Búsqueda --- */
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: var(--color-surface);
+    border-radius: 8px;
+    padding: 8px 15px;
+    margin-bottom: 20px;
+    width: 400px;
+}
+
+.search-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--color-text-sub);
+    margin-right: 10px;
+}
+
+.search-bar input[type="text"] {
+    flex-grow: 1;
+    background: none;
+    border: none;
+    color: var(--color-text-main);
+    outline: none;
+    padding: 5px 0;
+}
+
+/* ========================================= */
+/* 3. ESTILOS DE TABLA */
+/* ========================================= */
+.table-container {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    min-width: 800px; 
+    border-collapse: collapse;
+    background-color: var(--color-surface);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.data-table th, .data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.data-table th {
+    background-color: var(--color-header-bg); 
+    color: var(--color-neon-blue);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.data-table tbody tr:hover {
+    background-color: #3a3a5a;
+}
+
+.highlight-row {
+    background-color: #3e277a; 
+}
+
+/* --- Estados de Stock --- */
+.stock-high { color: var(--color-success); font-weight: 600; }
+.stock-low { color: var(--color-danger); font-weight: 600; }
+
+/* --- Badges de Estado --- */
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-active { background-color: rgba(46, 204, 113, 0.2); color: var(--color-success); }
+.status-inactive { background-color: rgba(90, 90, 90, 0.3); color: var(--color-inactive); }
+
+/* --- Botones de Acción de la Tabla --- */
+.action-btn {
+    background: none;
+    border: 1px solid transparent;
+    padding: 5px;
+    border-radius: 4px;
+    margin-right: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.edit-btn svg { color: var(--color-warning); width: 18px; height: 18px; }
+.delete-btn svg { color: var(--color-danger); width: 18px; height: 18px; }
+
+.action-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.table-footer {
+    margin-top: 15px;
+    color: var(--color-text-sub);
+    font-size: 0.9rem;
+}
+
+
+/* ========================================= */
+/* 4. ESTILOS DEL MODAL SUPERPUESTO */
+/* ========================================= */
+
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.7); 
+    backdrop-filter: blur(5px);
+    padding-top: 50px;
+}
+
+.modal-content {
+    background-color: var(--color-surface); 
+    margin: 5% auto; 
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid var(--color-header-bg);
+    width: 90%; 
+    max-width: 600px; 
+    position: relative;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-title {
+    color: var(--color-neon-blue);
+    border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-weight: 600;
+}
+
+.close-button {
+    color: var(--color-text-sub);
+    float: right;
+    font-size: 30px;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: var(--color-text-main);
+}
+
+/* --- Estilos del Formulario --- */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--color-text-sub);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: var(--color-bg);
+    color: var(--color-text-main);
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+.modal-actions {
+    margin-top: 30px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}

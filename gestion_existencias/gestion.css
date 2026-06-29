@@ -1,0 +1,498 @@
+/* ========================================= */
+/* 1. VARIABLES CSS (Tema Oscuro y Colores Neón) */
+/* ========================================= */
+:root {
+    /* Fondos */
+    --color-bg: #1A1A2E; 			 
+    --color-surface: #2A2A4A; 		 
+    --color-header-bg: #311B92; 	 
+    
+    /* Acentos y Texto */
+    --color-neon-blue: #00FFFF;
+    --color-text-main: #FFFFFF;
+    --color-text-sub: #A0A0B0;
+    
+    /* Colores de Inventario */
+    --color-ok: #2ECC71;      /* Verde (Stock Suficiente) */
+    --color-alert: #F39C12;   /* Amarillo (Advertencia) */
+    --color-low: #E74C3C;     /* Rojo (Stock Bajo/Crítico) */
+    --color-edit: #F39C12;
+    --color-history: #3498DB;
+}
+
+/* ========================================= */
+/* 2. ESTILOS GLOBALES Y LAYOUT */
+/* ========================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text-main);
+    min-height: 100vh;
+}
+
+.dashboard-content {
+    padding: 40px;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    font-size: 0.95rem;
+    color: var(--color-text-sub);
+    font-weight: 300;
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* --- Botones --- */
+.btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background-color: var(--color-neon-blue);
+    color: var(--color-bg); 
+}
+
+.btn-primary:hover {
+    background-color: #66FFFF;
+}
+
+.btn-secondary {
+    background-color: #34495E;
+    color: var(--color-text-main);
+}
+
+.btn-secondary:hover {
+    background-color: #496277;
+}
+
+
+/* --- Barra de Búsqueda --- */
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: var(--color-surface);
+    border-radius: 8px;
+    padding: 8px 15px;
+    margin-bottom: 20px;
+    width: 400px;
+}
+
+.search-icon {
+    width: 20px;
+    height: 20px;
+    color: var(--color-text-sub);
+    margin-right: 10px;
+}
+
+.search-bar input[type="text"] {
+    flex-grow: 1;
+    background: none;
+    border: none;
+    color: var(--color-text-main);
+    outline: none;
+    padding: 5px 0;
+}
+
+/* ========================================= */
+/* 3. ESTILOS DE TABLA */
+/* ========================================= */
+.table-container {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    min-width: 900px; 
+    border-collapse: collapse;
+    background-color: var(--color-surface);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+.data-table th, .data-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.data-table th {
+    background-color: var(--color-header-bg); 
+    color: var(--color-neon-blue);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.data-table tbody tr:hover {
+    background-color: #3a3a5a;
+}
+
+.highlight-row {
+    background-color: #3e277a; 
+}
+
+/* --- Estados de Stock --- */
+.stock-ok { color: var(--color-ok); font-weight: 600; }
+.stock-low { color: var(--color-low); font-weight: 600; }
+
+/* --- Badges de Alerta --- */
+.alert-none { 
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background-color: rgba(46, 204, 113, 0.2); 
+    color: var(--color-ok);
+}
+.alert-low { 
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    background-color: rgba(231, 76, 60, 0.2); 
+    color: var(--color-low);
+    border: 1px solid var(--color-low);
+    animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+    from { opacity: 1; }
+    to { opacity: 0.7; }
+}
+
+/* --- Botones de Acción de la Tabla --- */
+.action-btn {
+    background: none;
+    border: 1px solid transparent;
+    padding: 5px;
+    border-radius: 4px;
+    margin-right: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.adjust-btn svg { color: var(--color-alert); width: 18px; height: 18px; } /* Ajustar Stock */
+.view-btn svg { color: var(--color-history); width: 18px; height: 18px; } /* Ver Historial */
+
+.action-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.table-footer {
+    margin-top: 15px;
+    color: var(--color-text-sub);
+    font-size: 0.9rem;
+}
+
+
+/* ========================================= */
+/* 4. ESTILOS DEL MODAL SUPERPUESTO */
+/* ========================================= */
+
+.modal {
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0;
+    top: 0;
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.7); 
+    backdrop-filter: blur(5px);
+    padding-top: 50px;
+    animation: fadeInOverlay 0.3s ease-out;
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: var(--color-surface); 
+    padding: 30px;
+    border-radius: 12px;
+    border: 2px solid var(--color-neon-blue);
+    width: 90%; 
+    max-width: 550px;
+    position: relative;
+    box-shadow: 0 8px 30px rgba(0, 255, 255, 0.3);
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(30px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.modal-title {
+    color: var(--color-neon-blue);
+    border-bottom: 2px solid rgba(0, 255, 255, 0.5);
+    padding-bottom: 15px;
+    margin-bottom: 25px;
+    font-weight: 700;
+    font-size: 1.3rem;
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.close-button {
+    color: var(--color-text-sub);
+    float: right;
+    font-size: 30px;
+    font-weight: bold;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: var(--color-neon-blue);
+    background-color: rgba(0, 255, 255, 0.1);
+    text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+/* --- Estilos del Formulario --- */
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--color-text-sub);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.required {
+    color: var(--color-low);
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 6px;
+    border: 1.5px solid rgba(0, 255, 255, 0.2);
+    background-color: var(--color-bg);
+    color: var(--color-text-main);
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--color-neon-blue);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    background-color: rgba(0, 255, 255, 0.05);
+}
+
+.form-group input[readonly] {
+    background-color: rgba(255, 255, 255, 0.05);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.product-select-input {
+    cursor: pointer;
+}
+
+.modal-actions {
+    margin-top: 30px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.save-btn {
+    background: linear-gradient(135deg, var(--color-neon-blue), #00FFAA) !important;
+    color: var(--color-bg) !important;
+    font-weight: 700;
+    padding: 12px 24px !important;
+}
+
+.save-btn:hover {
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.cancel-btn:hover {
+    background-color: #4a5a6a !important;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+}
+
+/* ========================================= */
+/* 5. MEJORAS DE DATOS Y SECCIÓN */
+/* ========================================= */
+.data-section {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(0, 255, 255, 0.3);
+    border-top: 2px solid var(--color-neon-blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ========================================= */
+/* 6. RESPONSIVO */
+/* ========================================= */
+@media (max-width: 1024px) {
+    .dashboard-content {
+        padding: 20px;
+    }
+    
+    .search-bar {
+        width: 100%;
+    }
+    
+    .form-group-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .data-table {
+        min-width: 700px;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    
+    .header-actions a, .header-actions button {
+        flex: 1;
+        min-width: 150px;
+    }
+    
+    .modal-content {
+        width: 95%;
+        max-width: 100%;
+        margin: 20px;
+        padding: 20px;
+    }
+    
+    .data-table {
+        font-size: 0.85rem;
+    }
+    
+    .data-table th, .data-table td {
+        padding: 8px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-content {
+        padding: 15px;
+    }
+    
+    .page-title {
+        font-size: 1.2rem;
+    }
+    
+    .btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .search-bar {
+        flex-direction: column;
+    }
+}

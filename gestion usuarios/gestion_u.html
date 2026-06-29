@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios</title>
+    
+    <link rel="stylesheet" href="gestion_u.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <main class="dashboard-content">
+
+        <header class="content-header">
+            <h1 class="page-title">👤 Gestión de Usuarios</h1>
+            <div class="header-actions">
+                <a href="dashboard.html" class="btn btn-secondary back-button">
+                    <svg data-lucide="arrow-left" class="icon-small"></svg>
+                    Volver al Dashboard
+                </a>
+                
+                <button class="btn btn-primary add-button">
+                    <svg data-lucide="user-plus" class="icon-small"></svg>
+                    Añadir Nuevo Usuario
+                </button>
+            </div>
+        </header>
+
+        <section class="data-section">
+            <div class="search-bar">
+                <svg data-lucide="search" class="search-icon"></svg>
+                <input type="text" placeholder="Buscar por nombre, email o rol...">
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre Completo</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Último Acceso</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight-row">
+                            <td>USR-001</td>
+                            <td>Diego C. Bernal</td>
+                            <td>diego.b@jygestor.com</td>
+                            <td>Administrador</td>
+                            <td>2025-11-13 20:30</td>
+                            <td><span class="status-badge status-active">Activo</span></td>
+                            <td>
+                                <button class="action-btn edit-btn" title="Editar"><svg data-lucide="pencil"></svg></button>
+                                <button class="action-btn delete-btn" title="Eliminar"><svg data-lucide="trash-2"></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>USR-002</td>
+                            <td>Laura P. Ramírez</td>
+                            <td>laura.r@jygestor.com</td>
+                            <td>Ventas</td>
+                            <td>2025-11-12 11:45</td>
+                            <td><span class="status-badge status-active">Activo</span></td>
+                            <td>
+                                <button class="action-btn edit-btn" title="Editar"><svg data-lucide="pencil"></svg></button>
+                                <button class="action-btn delete-btn" title="Eliminar"><svg data-lucide="trash-2"></svg></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>USR-003</td>
+                            <td>Javier T. Soto</td>
+                            <td>javier.s@jygestor.com</td>
+                            <td>Almacén</td>
+                            <td>2025-10-25 09:00</td>
+                            <td><span class="status-badge status-inactive">Inactivo</span></td>
+                            <td>
+                                <button class="action-btn edit-btn" title="Editar"><svg data-lucide="pencil"></svg></button>
+                                <button class="action-btn delete-btn" title="Eliminar"><svg data-lucide="trash-2"></svg></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="table-footer">
+                <p>Mostrando 1 a 3 de 12 Usuarios</p>
+            </div>
+        </section>
+
+    </main>
+    
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 class="modal-title">📝 Añadir/Editar Usuario</h2>
+            <form id="userForm">
+                
+                <div class="form-group">
+                    <label for="userName">Nombre Completo</label>
+                    <input type="text" id="userName" name="userName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="userEmail">Email</label>
+                    <input type="email" id="userEmail" name="userEmail" required>
+                </div>
+                
+                <div class="form-group-grid">
+                    <div class="form-group">
+                        <label for="userPassword">Contraseña</label>
+                        <input type="password" id="userPassword" name="userPassword" placeholder="Solo si deseas cambiarla">
+                    </div>
+                    <div class="form-group">
+                        <label for="userRole">Rol del Sistema</label>
+                        <select id="userRole" name="userRole" required>
+                            <option value="administrador">Administrador</option>
+                            <option value="ventas">Ventas</option>
+                            <option value="almacen">Almacén</option>
+                            <option value="reportes">Reportes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="userStatus">Estado de la Cuenta</label>
+                    <select id="userStatus" name="userStatus" required>
+                        <option value="active">Activo</option>
+                        <option value="inactive">Inactivo</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary save-btn">Guardar Usuario</button>
+                    <button type="button" class="btn btn-secondary cancel-btn">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="../frontend/shared/api.js"></script>
+    <script src="user.js"></script>
+</body>
+</html>

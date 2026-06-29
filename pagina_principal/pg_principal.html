@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | JYJGESTOR</title>
+
+    <link rel="stylesheet" href="pg_principal.css">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap"
+        rel="stylesheet"
+    >
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+
+        <div class="logo-container">
+
+            <svg data-lucide="gem" class="logo-icon"></svg>
+
+            <span class="logo-text">
+                JYJGESTOR
+            </span>
+
+        </div>
+
+        <div class="user-controls">
+
+            <button class="alert-button">
+
+                <svg data-lucide="bell" class="alert-icon"></svg>
+
+                <span class="alert-badge">
+                    3
+                </span>
+
+            </button>
+
+        </div>
+
+    </header>
+
+    <!-- LAYOUT -->
+    <div class="main-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+
+            <div class="sidebar-content">
+
+                <div class="logo-container">
+
+                    <svg data-lucide="gem" class="logo-icon"></svg>
+
+                    <span class="logo-text">
+                        JYJGESTOR
+                    </span>
+
+                </div>
+
+                <!-- NAV -->
+                <p class="nav-heading">
+                    NAVEGACIÓN PRINCIPAL
+                </p>
+
+                <nav class="nav-list">
+
+                    <a href="dashboard.html" class="nav-item active">
+                        <svg data-lucide="layout-dashboard" class="nav-icon"></svg>
+                        Dashboard
+                    </a>
+
+                    <a href="../clientes/cli.html" class="nav-item">
+                        <svg data-lucide="users" class="nav-icon"></svg>
+                        Clientes
+                    </a>
+
+                    <a href="../g_productos/g_productos.html" class="nav-item">
+                        <svg data-lucide="package" class="nav-icon"></svg>
+                        Gestión de Productos
+                    </a>
+
+                    <a href="../gestion_existencias/gestion_e.html" class="nav-item">
+                        <svg data-lucide="box" class="nav-icon"></svg>
+                        Gestión de Existencias
+                    </a>
+
+                    <a href="../gestion usuarios/gestion_u.html" class="nav-item">
+                        <svg data-lucide="user-cog" class="nav-icon"></svg>
+                        Gestión de Usuarios
+                    </a>
+
+                    <a href="../reportes/reportes.html" class="nav-item">
+                        <svg data-lucide="bar-chart-3" class="nav-icon"></svg>
+                        Reportes
+                    </a>
+
+                    <a href="../ventas/ventas.html" class="nav-item">
+                    <svg data-lucide="shopping-cart" class="nav-icon"></svg>
+                    Ventas
+                    </a>
+
+                    <a href="../configuracion/config.html" class="nav-item">
+                        <svg data-lucide="settings" class="nav-icon"></svg>
+                        Configuración
+                    </a>
+
+                </nav>
+
+                <!-- USER -->
+                <div class="user-details">
+
+                    <p
+                        class="user-name"
+                        id="userName"
+                    >
+                        Cargando...
+                    </p>
+
+                    <p
+                        class="user-email"
+                        id="userEmail"
+                    >
+                        Cargando...
+                    </p>
+
+                </div>
+
+                <!-- LOGOUT -->
+                <button
+                    type="button"
+                    class="logout-button"
+                    id="logoutBtn"
+                >
+
+                    <svg
+                        data-lucide="log-out"
+                        class="logout-icon"
+                    ></svg>
+
+                    Cerrar Sesión
+
+                </button>
+
+            </div>
+
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main-content">
+
+            <h1 class="page-title">
+                Dashboard
+            </h1>
+
+            <!-- FILTROS -->
+            <div class="action-bar">
+
+                <input type="date" class="date-filter">
+
+                <input type="date" class="date-filter">
+
+                <button class="action-button">
+                    Aplicar Filtros
+                </button>
+
+            </div>
+
+            <!-- WIDGETS -->
+            <div class="widget-grid">
+
+                <!-- CLIENTES -->
+                <div class="card-widget color-clientes">
+
+                    <svg data-lucide="users" class="card-icon"></svg>
+
+                    <div>
+
+                        <p
+                            class="card-metric"
+                            id="clientesActivos"
+                        >
+                            0
+                        </p>
+
+                        <p class="card-desc">
+                            Clientes Activos
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- PROVEEDORES -->
+                <div class="card-widget color-proveedores">
+
+                    <svg data-lucide="package-search" class="card-icon"></svg>
+
+                    <div>
+
+                        <p
+                            class="card-metric"
+                            id="proveedores"
+                        >
+                            0
+                        </p>
+
+                        <p class="card-desc">
+                            Proveedores
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- PRODUCTOS -->
+                <div class="card-widget color-productos">
+
+                    <svg data-lucide="box" class="card-icon"></svg>
+
+                    <div>
+
+                        <p
+                            class="card-metric"
+                            id="productos"
+                        >
+                            0
+                        </p>
+
+                        <p class="card-desc">
+                            Productos
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- FACTURAS -->
+                <div class="card-widget color-facturas">
+
+                    <svg data-lucide="file-text" class="card-icon"></svg>
+
+                    <div>
+
+                        <p
+                            class="card-metric"
+                            id="facturas"
+                        >
+                            0
+                        </p>
+
+                        <p class="card-desc">
+                            Facturas Pendientes
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- TOTAL UNIDADES -->
+                <div class="card-widget color-existencia-total">
+
+                    <svg data-lucide="boxes" class="card-icon"></svg>
+
+                    <div>
+
+                        <p
+                            class="card-metric"
+                            id="totalUnidades"
+                        >
+                            0
+                        </p>
+
+                        <p class="card-desc">
+                            Total Unidades
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- VENDIDAS -->
+                <div class="card-widget color-existencia-vendida">
+
+                    <svg data-lucide="trending-down" class="card-icon"></svg>
+
+                    <div>
+
+                        <p
+                            class="card-metric"
+                            id="vendidas"
+                        >
+                            0
+                        </p>
+
+                        <p class="card-desc">
+                            Unidades Vendidas
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- STOCK -->
+                <div class="card-widget color-existencia-actual">
+
+                    <svg data-lucide="bell" class="card-icon"></svg>
+
+                    <div>
+
+                        <p
+                            class="card-metric"
+                            id="stockBajo"
+                        >
+                            0
+                        </p>
+
+                        <p class="card-desc">
+                            Productos con Stock Bajo
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- TOTAL VENDIDO -->
+                <div class="card-widget color-importe-vendido">
+
+                    <svg data-lucide="dollar-sign" class="card-icon"></svg>
+
+                    <div>
+
+                        <p
+                            class="card-metric"
+                            id="totalVendido"
+                        >
+                            $0
+                        </p>
+
+                        <p class="card-desc">
+                            Total Vendido
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- COBRADO -->
+                <div class="card-widget color-importe-pagado">
+
+                    <svg data-lucide="check-circle" class="card-icon"></svg>
+
+                    <div>
+
+                        <p
+                            class="card-metric"
+                            id="cobrado"
+                        >
+                            $0
+                        </p>
+
+                        <p class="card-desc">
+                            Importe Cobrado
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- PENDIENTE -->
+                <div class="card-widget color-importe-restante">
+
+                    <svg data-lucide="alert-triangle" class="card-icon"></svg>
+
+                    <div>
+
+                        <p
+                            class="card-metric"
+                            id="pendiente"
+                        >
+                            $0
+                        </p>
+
+                        <p class="card-desc">
+                            Pendiente por Cobrar
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- MARGEN -->
+                <div class="card-widget color-beneficio-bruto">
+
+                    <svg data-lucide="pie-chart" class="card-icon"></svg>
+
+                    <div>
+
+                        <p
+                            class="card-metric"
+                            id="margen"
+                        >
+                            0%
+                        </p>
+
+                        <p class="card-desc">
+                            Margen Bruto
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- BENEFICIO -->
+                <div class="card-widget color-beneficio-neto">
+
+                    <svg data-lucide="trending-up" class="card-icon"></svg>
+
+                    <div>
+
+                        <p
+                            class="card-metric"
+                            id="beneficio"
+                        >
+                            $0
+                        </p>
+
+                        <p class="card-desc">
+                            Beneficio Neto
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+
+    <script src="pg_principal.js"></script>
+
+</body>
+
+</html>

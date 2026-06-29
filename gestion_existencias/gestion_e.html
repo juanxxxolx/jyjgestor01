@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Gestión de Existencias e Inventario">
+    <title>📦 Gestión de Existencias</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="gestion.css">
+    
+    <!-- Fuentes -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Íconos Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body>
+    <main class="dashboard-content">
+
+        <header class="content-header">
+            <div>
+                <h1 class="page-title">📦 Gestión de Existencias</h1>
+                <p class="subtitle">Administra tu inventario en tiempo real</p>
+            </div>
+            <div class="header-actions">
+                <a href="../pagina_principal/pg_principal.html" class="btn btn-secondary back-button" title="Volver al Dashboard">
+                    <svg data-lucide="arrow-left" class="icon-small"></svg>
+                    Volver al dashboard
+                </a>
+                
+                <button class="btn btn-primary add-button" id="open-general-mov-btn" title="Registrar nuevo movimiento">
+                    <svg data-lucide="package-plus" class="icon-small"></svg>
+                    Nuevo Movimiento
+                </button>
+            </div>
+        </header>
+
+        <section class="data-section">
+            <div class="search-bar">
+                <svg data-lucide="search" class="search-icon"></svg>
+                <input type="text" placeholder="Buscar producto, SKU o categoría..." id="search-input" aria-label="Buscar productos">
+            </div>
+
+            <div class="table-container">
+                <table class="data-table" role="table" aria-label="Tabla de inventario">
+                    <thead>
+                        <tr>
+                            <th scope="col">SKU</th>
+                            <th scope="col">Producto</th>
+                            <th scope="col">Categoría</th>
+                            <th scope="col">Stock Actual</th>
+                            <th scope="col">Stock Mínimo</th>
+                            <th scope="col">Alertas</th>
+                            <th scope="col">Último Movimiento</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body">
+                        <tr>
+                            <td colspan="8" style="text-align:center; padding: 40px;">
+                                <div class="loading-spinner"></div>
+                                <p>Cargando productos...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="table-footer">
+                <p id="inventory-count-footer">Mostrando 0 de 0 Productos en Inventario</p>
+            </div>
+        </section>
+
+    </main>
+    
+    <!-- MODAL DE MOVIMIENTO DE STOCK -->
+    <div id="stockModal" class="modal" role="dialog" aria-labelledby="modal-title" aria-hidden="true">
+        <div class="modal-content">
+            <button class="close-button" id="modal-close-btn" aria-label="Cerrar">&times;</button>
+            <h2 class="modal-title" id="modal-title">
+                <svg data-lucide="package-plus" style="display: inline; width: 24px; height: 24px; margin-right: 8px; vertical-align: middle;"></svg>
+                Registro de Movimiento de Stock
+            </h2>
+            <form id="stockForm" novalidate>
+                
+                <input type="hidden" id="stockProductId" name="stockProductId">
+
+                <div class="form-group">
+                    <label for="stockProductSelect">
+                        <svg data-lucide="box" style="display: inline; width: 16px; height: 16px; margin-right: 4px;"></svg>
+                        Producto <span class="required">*</span>
+                    </label>
+                    <select id="stockProductSelect" name="stockProductSelect" required aria-required="true">
+                        <option value="">Seleccione un producto...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group-grid">
+                    <div class="form-group">
+                        <label for="stockCurrent">
+                            <svg data-lucide="layers" style="display: inline; width: 16px; height: 16px; margin-right: 4px;"></svg>
+                            Stock Actual
+                        </label>
+                        <input type="number" id="stockCurrent" name="stockCurrent" value="0" readonly aria-label="Stock actual del producto">
+                    </div>
+                    <div class="form-group">
+                        <label for="stockMovementType">
+                            <svg data-lucide="arrow-right-left" style="display: inline; width: 16px; height: 16px; margin-right: 4px;"></svg>
+                            Tipo de Movimiento <span class="required">*</span>
+                        </label>
+                        <select id="stockMovementType" name="stockMovementType" required aria-required="true">
+                            <option value="">Seleccione tipo...</option>
+                            <option value="ENTRADA">⬆️ Entrada (Sumar)</option>
+                            <option value="SALIDA">⬇️ Salida (Restar)</option>
+                            <option value="AJUSTE">🔄 Ajuste</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="stockQuantity">
+                        <svg data-lucide="hash" style="display: inline; width: 16px; height: 16px; margin-right: 4px;"></svg>
+                        Cantidad a Mover <span class="required">*</span>
+                    </label>
+                    <input type="number" id="stockQuantity" name="stockQuantity" required min="0.01" step="0.01" placeholder="Ingresa la cantidad" aria-required="true" aria-label="Cantidad a mover">
+                </div>
+
+                <div class="form-group">
+                    <label for="stockReason">
+                        <svg data-lucide="file-text" style="display: inline; width: 16px; height: 16px; margin-right: 4px;"></svg>
+                        Motivo/Referencia <span class="required">*</span>
+                    </label>
+                    <textarea id="stockReason" name="stockReason" rows="3" required minlength="3" placeholder="Ej: Compra, Venta, Ajuste..." aria-required="true" aria-label="Motivo del movimiento"></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary save-btn">
+                        <svg data-lucide="check" style="display: inline; width: 18px; height: 18px;"></svg>
+                        Aplicar Movimiento
+                    </button>
+                    <button type="button" class="btn btn-secondary cancel-btn" id="modal-cancel-btn">
+                        <svg data-lucide="x" style="display: inline; width: 18px; height: 18px;"></svg>
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="../frontend/shared/api.js"></script>
+    <script src="gestion_e.js"></script>
+</body>
+</html>
