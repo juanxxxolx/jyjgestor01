@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id_usuario     Int          @id @default(autoincrement())
+  nombre         String       @db.VarChar(100)
+  email          String       @unique @db.VarChar(255)
+  password_hash  String       @db.Text
+  id_rol         Int          @default(2)
+  activo         Boolean      @default(true)
+  fecha_creacion DateTime     @default(now())
+  clientes       Cliente[]
+  movimientos    Movimiento[]
+
+  @@map("usuarios")
+}
+
+model Cliente {
+  id_cliente     Int       @id @default(autoincrement())
+  nombre         String    @db.VarChar(200)
+  email          String?   @db.VarChar(255)
+  telefono       String?   @db.VarChar(20)
+  direccion      String?   @db.VarChar(300)
+  tipo_cliente   String?   @db.VarChar(20)
+  fecha_registro DateTime  @default(now())
+  ultimo_pedido  DateTime?
+  id_usuario     Int?
+  usuario        Usuario?  @relation(fields: [id_usuario], references: [id_usuario])
+
+  @@map("clientes")
+}
+
+model Categoria {
+  id_categoria     Int        @id @default(autoincrement())
+  nombre_categoria String     @db.VarChar(100)
+  productos        Producto[]
+
+  @@map("categorias")
+}
+
+model Producto {
+  id_producto  Int          @id @default(autoincrement())
+  nombre       String       @db.VarChar(100)
+  referencia   String       @unique @db.VarChar(50)
+  descripcion  String?      @db.Text
+  precio_venta Decimal      @db.Decimal(10, 2)
+  stock        Int          @default(0)
+  stock_minimo Int          @default(5)
+  id_categoria Int?
+  categoria    Categoria?   @relation(fields: [id_categoria], references: [id_categoria])
+  movimientos  Movimiento[]
+
+  @@map("productos")
+}
+
+model Movimiento {
+  id_movimiento    Int      @id @default(autoincrement())
+  id_producto      Int
+  tipo_movimiento  String   @db.VarChar(20)
+  cantidad         Decimal  @db.Decimal(10, 2)
+  motivo           String   @db.Text
+  fecha_movimiento DateTime @default(now())
+  id_usuario       Int?
+  producto         Producto @relation(fields: [id_producto], references: [id_producto])
+  usuario          Usuario? @relation(fields: [id_usuario], references: [id_usuario])
+
+  @@map("movimientos")
+}
