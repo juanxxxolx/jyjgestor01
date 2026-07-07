@@ -1,0 +1,16 @@
+.page {
+  padding: 24px;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.header {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.title {
+  margin: 0 !important;
+}

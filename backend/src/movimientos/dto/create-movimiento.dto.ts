@@ -23,4 +23,9 @@ export class CreateMovimientoDto {
   @IsString()
   @MaxLength(500)
   motivo: string;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  id_cliente?: number;
 }

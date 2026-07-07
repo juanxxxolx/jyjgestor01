@@ -1,0 +1,23 @@
+.logo {
+  padding: 16px;
+  text-align: center;
+}
+
+.logoText {
+  color: white;
+  font-size: 18px;
+}
+
+.header {
+  background: #fff;
+  padding: 0 24px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.content {
+  margin: 24px;
+  background: #f0f2f5;
+}

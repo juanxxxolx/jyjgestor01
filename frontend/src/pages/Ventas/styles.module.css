@@ -1,0 +1,32 @@
+.page {
+  padding: 24px;
+}
+
+.card {
+  margin-top: 16px;
+}
+
+.lineasTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.lineasTable th,
+.lineasTable td {
+  text-align: left;
+  padding: 8px 4px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.lineasTable th {
+  font-weight: 600;
+  color: #8c8c8c;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

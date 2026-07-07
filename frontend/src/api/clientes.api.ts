@@ -2,8 +2,8 @@ import api from './client';
 import type { Cliente } from '../types';
 
 export const clientesApi = {
-  getAll: (search?: string) =>
-    api.get('/clientes', { params: search ? { search } : {} }).then((r) => r.data),
+  getAll: (search?: string, page = 1, limit = 20) =>
+    api.get('/clientes', { params: { search, page, limit } }).then((r) => r.data),
 
   getById: (id: number) =>
     api.get(`/clientes/${id}`).then((r) => r.data),

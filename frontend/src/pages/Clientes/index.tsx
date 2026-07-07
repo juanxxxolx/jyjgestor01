@@ -1,54 +1,27 @@
-import { useState } from 'react';
-import { Table, Button, Input, Modal, Form, message, Popconfirm, Space, Typography } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { clientesApi } from '../../api/clientes.api';
+import { Table, Button, Input, Modal, Form, Popconfirm, Space, Typography } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, DownloadOutlined } from '@ant-design/icons';
 import type { Cliente } from '../../types';
+import { useClientes } from './useClientes';
+import { downloadExport } from '../../utils/download';
+import styles from './styles.module.css';
 
 export default function ClientesPage() {
-  const [search, setSearch] = useState('');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState<Cliente | null>(null);
-  const [form] = Form.useForm();
-  const qc = useQueryClient();
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['clientes', search],
-    queryFn: () => clientesApi.getAll(search || undefined),
-  });
-
-  const createMutation = useMutation({
-    mutationFn: clientesApi.create,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['clientes'] }); closeModal(); message.success('Cliente creado'); },
-    onError: () => message.error('Error al crear cliente'),
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: number; data: any }) => clientesApi.update(id, data),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['clientes'] }); closeModal(); message.success('Cliente actualizado'); },
-    onError: () => message.error('Error al actualizar'),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: clientesApi.delete,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['clientes'] }); message.success('Cliente eliminado'); },
-    onError: () => message.error('Error al eliminar'),
-  });
-
-  const openCreate = () => { setEditing(null); form.resetFields(); setModalOpen(true); };
-  const openEdit = (c: Cliente) => { setEditing(c); form.setFieldsValue(c); setModalOpen(true); };
-  const closeModal = () => { setModalOpen(false); setEditing(null); form.resetFields(); };
-
-  const onFinish = (values: any) => {
-    if (editing) updateMutation.mutate({ id: editing.id_cliente, data: values });
-    else createMutation.mutate(values);
-  };
+  const {
+    data, isLoading, search, setSearch,
+    modalOpen, editing, form,
+    page, setPage, limit,
+    createMutation, updateMutation, deleteMutation,
+    openCreate, openEdit, closeModal, onFinish,
+  } = useClientes();
 
   return (
-    <div style={{ padding: 24, background: '#fff', borderRadius: 8 }}>
-      <Space style={{ marginBottom: 16, justifyContent: 'space-between', width: '100%' }}>
-        <Typography.Title level={4} style={{ margin: 0 }}>Clientes</Typography.Title>
+    <div className={styles.page}>
+      <Space className={styles.header}>
+        <Typography.Title level={4} className={styles.title}>Clientes</Typography.Title>
         <Space>
+          <Button icon={<DownloadOutlined />} onClick={() => downloadExport('/clientes/export', 'clientes.xlsx')}>
+            Exportar
+          </Button>
           <Input
             prefix={<SearchOutlined />}
             placeholder="Buscar..."
@@ -66,6 +39,14 @@ export default function ClientesPage() {
         dataSource={data?.data ?? []}
         loading={isLoading}
         rowKey="id_cliente"
+        locale={{ emptyText: 'No hay clientes' }}
+        pagination={{
+          current: page,
+          pageSize: limit,
+          total: data?.meta?.total,
+          onChange: (p) => setPage(p),
+          showSizeChanger: false,
+        }}
         columns={[
           { title: 'Nombre', dataIndex: 'nombre', key: 'nombre' },
           { title: 'Email', dataIndex: 'email', key: 'email' },

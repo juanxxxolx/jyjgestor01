@@ -1,50 +1,55 @@
-import { useState } from 'react';
-import { Table, Button, Modal, Form, Input, InputNumber, Select, message, Tag, Space, Typography } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { movimientosApi } from '../../api/movimientos.api';
-import { productosApi } from '../../api/productos.api';
-import type { Movimiento } from '../../types';
+import { Table, Button, Modal, Form, Input, InputNumber, Select, Tag, Space, Typography } from 'antd';
+import { PlusOutlined, DownloadOutlined } from '@ant-design/icons';
+import { useExistencias } from './useExistencias';
+import { downloadExport } from '../../utils/download';
+import type { Cliente } from '../../types';
+import styles from './styles.module.css';
 
 export default function ExistenciasPage() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [form] = Form.useForm();
-  const qc = useQueryClient();
-
-  const { data: movimientosRes, isLoading } = useQuery({
-    queryKey: ['movimientos'],
-    queryFn: () => movimientosApi.getAll(),
-  });
-
-  const { data: productosRes } = useQuery({ queryKey: ['productos'], queryFn: productosApi.getAll });
-
-  const createMutation = useMutation({
-    mutationFn: movimientosApi.create,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['movimientos'] });
-      qc.invalidateQueries({ queryKey: ['productos'] });
-      setModalOpen(false);
-      form.resetFields();
-      message.success('Movimiento registrado');
-    },
-    onError: (e: any) => message.error(e.response?.data?.message || 'Error al registrar'),
-  });
-
-  const tipoColor: Record<string, string> = { ENTRADA: 'green', SALIDA: 'red', AJUSTE: 'blue' };
+  const {
+    movimientosRes, isLoading, productosRes, clientesRes,
+    modalOpen, form, tipoColor, productoFiltro,
+    page, setPage, limit,
+    createMutation, setModalOpen, setProductoFiltro,
+  } = useExistencias();
 
   return (
-    <div style={{ padding: 24, background: '#fff', borderRadius: 8 }}>
-      <Space style={{ marginBottom: 16, justifyContent: 'space-between', width: '100%' }}>
-        <Typography.Title level={4} style={{ margin: 0 }}>Existencias / Movimientos</Typography.Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalOpen(true)}>
-          Registrar movimiento
-        </Button>
+    <div className={styles.page}>
+      <Space className={styles.header}>
+        <Typography.Title level={4} className={styles.title}>Existencias / Movimientos</Typography.Title>
+        <Space>
+          <Button icon={<DownloadOutlined />} onClick={() => downloadExport('/movimientos/export', 'movimientos.xlsx')}>
+            Exportar
+          </Button>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setModalOpen(true)}>
+            Registrar movimiento
+          </Button>
+        </Space>
       </Space>
+
+      <Select
+        allowClear
+        showSearch
+        placeholder="Filtrar por producto"
+        style={{ width: 300, marginBottom: 16 }}
+        value={productoFiltro}
+        onChange={(v) => { setProductoFiltro(v); setPage(1); }}
+        optionFilterProp="label"
+        options={(productosRes?.data ?? []).map((p: any) => ({ value: p.id_producto, label: `${p.nombre} (${p.referencia})` }))}
+      />
 
       <Table
         dataSource={movimientosRes?.data ?? []}
         loading={isLoading}
         rowKey="id_movimiento"
+        locale={{ emptyText: 'No hay movimientos' }}
+        pagination={{
+          current: page,
+          pageSize: limit,
+          total: movimientosRes?.meta?.total,
+          onChange: (p) => setPage(p),
+          showSizeChanger: false,
+        }}
         columns={[
           { title: 'Producto', dataIndex: ['producto', 'nombre'], key: 'producto' },
           { title: 'Referencia', dataIndex: ['producto', 'referencia'], key: 'referencia' },
@@ -56,6 +61,7 @@ export default function ExistenciasPage() {
           },
           { title: 'Cantidad', dataIndex: 'cantidad', key: 'cantidad' },
           { title: 'Motivo', dataIndex: 'motivo', key: 'motivo', ellipsis: true },
+          { title: 'Cliente', dataIndex: ['cliente', 'nombre'], key: 'cliente' },
           { title: 'Usuario', dataIndex: ['usuario', 'nombre'], key: 'usuario' },
           {
             title: 'Fecha',
@@ -95,10 +101,22 @@ export default function ExistenciasPage() {
             />
           </Form.Item>
           <Form.Item name="cantidad" label="Cantidad" rules={[{ required: true }]}>
-            <InputNumber min={0.01} style={{ width: '100%' }} />
+            <InputNumber min={0.01} className={styles.formInput} />
           </Form.Item>
           <Form.Item name="motivo" label="Motivo" rules={[{ required: true }]}>
             <Input.TextArea rows={2} />
+          </Form.Item>
+          <Form.Item name="id_cliente" label="Cliente (opcional)">
+            <Select
+              allowClear
+              showSearch
+              optionFilterProp="label"
+              placeholder="Seleccionar cliente"
+              options={(clientesRes?.data ?? []).map((c: Cliente) => ({
+                value: c.id_cliente,
+                label: c.nombre,
+              }))}
+            />
           </Form.Item>
         </Form>
       </Modal>

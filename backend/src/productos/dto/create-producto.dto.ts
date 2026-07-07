@@ -31,4 +31,9 @@ export class CreateProductoDto {
   @IsInt()
   @Type(() => Number)
   id_categoria?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  imagen_url?: string;
 }

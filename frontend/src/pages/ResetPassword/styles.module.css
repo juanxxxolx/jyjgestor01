@@ -1,0 +1,22 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f5f5f5;
+}
+
+.card {
+  width: 400px;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 8px !important;
+}
+
+.subtitle {
+  display: block;
+  text-align: center;
+  margin-bottom: 24px;
+}
