@@ -1,5 +1,20 @@
+/**
+ * @fileoverview Utilidad de paginación para Prisma.
+ * Proporciona una función genérica que aplica paginación
+ * a cualquier modelo de Prisma mediante skip/take y conteo total.
+ */
 import { PaginationDto, PaginatedResult } from '../dto/pagination.dto';
 
+/**
+ * Ejecuta una consulta paginada sobre un modelo de Prisma.
+ * Retorna los datos junto con metadatos de paginación (total, página, límite, páginas totales).
+ *
+ * @template T - Tipo de los datos retornados por el modelo
+ * @param model - Objeto del modelo Prisma con métodos findMany y count
+ * @param pagination - DTO con parámetros de paginación
+ * @param args - Argumentos adicionales para la consulta (where, include, orderBy)
+ * @returns Resultado paginado con datos y metadatos
+ */
 export async function paginate<T>(
   model: {
     findMany: (args: any) => Promise<T[]>;

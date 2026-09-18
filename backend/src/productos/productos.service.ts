@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Servicio de Productos.
+ * Implementa la lógica de negocio para la gestión de productos:
+ * CRUD completo, consulta de bajo stock, actualización de imagen
+ * y registro de precios históricos al modificar el precio.
+ */
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
@@ -13,6 +19,16 @@ export class ProductosService {
     private audit: AuditService,
   ) {}
 
+  /**
+   * Crea un nuevo producto con su referencia única.
+   *
+   * @param dto - Datos del producto
+   * @param userId - ID del usuario que crea
+   * @param userName - Nombre del usuario
+   * @param ip - Dirección IP
+   * @returns Producto creado con categoría incluida
+   * @throws ConflictException si la referencia ya existe
+   */
   async create(dto: CreateProductoDto, userId?: number, userName?: string, ip?: string) {
     const existe = await this.prisma.producto.findUnique({ where: { referencia: dto.referencia } });
     if (existe) throw new ConflictException(`Referencia '${dto.referencia}' ya existe`);
@@ -32,6 +48,14 @@ export class ProductosService {
     return { success: true, data: producto };
   }
 
+  /**
+   * Obtiene todos los productos con paginación y búsqueda opcional
+   * por nombre o referencia.
+   *
+   * @param pagination - Parámetros de paginación
+   * @param search - Término de búsqueda opcional
+   * @returns Lista paginada de productos
+   */
   async findAll(pagination: PaginationDto, search?: string) {
     const where = search
       ? {
@@ -49,6 +73,13 @@ export class ProductosService {
     return { success: true, ...result };
   }
 
+  /**
+   * Obtiene un producto por su ID.
+   *
+   * @param id - ID del producto
+   * @returns Producto encontrado con categoría
+   * @throws NotFoundException si no existe
+   */
   async findOne(id: number) {
     const producto = await this.prisma.producto.findUnique({
       where: { id_producto: id },
@@ -58,6 +89,12 @@ export class ProductosService {
     return { success: true, data: producto };
   }
 
+  /**
+   * Obtiene productos cuyo stock es igual o inferior al stock mínimo.
+   * Utiliza una consulta SQL raw para mayor eficiencia.
+   *
+   * @returns Lista de productos con bajo stock
+   */
   async findLowStock() {
     const bajoStock = await this.prisma.$queryRaw<any[]>`
       SELECT p.*, c.nombre_categoria FROM productos p
@@ -67,6 +104,19 @@ export class ProductosService {
     return { success: true, data: bajoStock };
   }
 
+  /**
+   * Actualiza un producto. Si cambia el precio, registra automáticamente
+   * un precio histórico. Todo se ejecuta en una transacción.
+   *
+   * @param id - ID del producto
+   * @param dto - Datos a actualizar
+   * @param userId - ID del usuario
+   * @param userName - Nombre del usuario
+   * @param ip - Dirección IP
+   * @returns Producto actualizado con categoría
+   * @throws NotFoundException si no existe
+   * @throws ConflictException si la referencia ya está en uso
+   */
   async update(id: number, dto: UpdateProductoDto, userId?: number, userName?: string, ip?: string) {
     const actual = await this.findOne(id);
     const productoActual = actual.data;
@@ -116,6 +166,13 @@ export class ProductosService {
     return { success: true, data: producto };
   }
 
+  /**
+   * Actualiza la URL de la imagen de un producto.
+   *
+   * @param id - ID del producto
+   * @param filename - Nombre del archivo de imagen
+   * @returns Producto actualizado con la nueva URL de imagen
+   */
   async updateImage(id: number, filename: string) {
     const producto = await this.prisma.producto.update({
       where: { id_producto: id },
@@ -125,6 +182,16 @@ export class ProductosService {
     return { success: true, data: producto };
   }
 
+  /**
+   * Elimina un producto y registra el evento en auditoría.
+   *
+   * @param id - ID del producto
+   * @param userId - ID del usuario
+   * @param userName - Nombre del usuario
+   * @param ip - Dirección IP
+   * @returns Mensaje de confirmación
+   * @throws NotFoundException si no existe
+   */
   async remove(id: number, userId?: number, userName?: string, ip?: string) {
     const producto = await this.findOne(id);
     await this.prisma.producto.delete({ where: { id_producto: id } });

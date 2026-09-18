@@ -1,0 +1,7 @@
+/**
+ * @file Estilos de la página de Arqueo de Caja.
+ * Define el padding de la página y ajuste responsivo.
+ */
+
+.page { padding: 24; }
+@media (max-width: 768px) { .page { padding: 12px; } }

@@ -1,3 +1,9 @@
+/**
+ * @file Hook personalizado para la página Existencias.
+ * Gestiona las consultas de movimientos, productos y clientes,
+ * así como la creación de nuevos movimientos y los filtros.
+ */
+
 import { useState } from 'react';
 import { Form, message } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -5,6 +11,18 @@ import { movimientosApi } from '../../api/movimientos.api';
 import { productosApi } from '../../api/productos.api';
 import { clientesApi } from '../../api/clientes.api';
 
+/**
+ * Hook que centraliza los datos y operaciones de la página Existencias.
+ * - `movimientosRes`: consulta paginada de movimientos (con filtro opcional por producto).
+ * - `productosRes`: consulta de productos para el selector.
+ * - `clientesRes`: consulta de clientes para el selector.
+ * - `createMutation`: crea un movimiento e invalida las queries de movimientos y productos.
+ * - Controla el estado del modal, la página actual y el filtro por producto.
+ *
+ * @returns {object} - Datos de movimientos, productos, clientes; estado del modal,
+ *                     formulario, colores de tipo (`tipoColor`), paginación,
+ *                     mutación `createMutation`, setters de modal y filtro.
+ */
 export function useExistencias() {
   const [modalOpen, setModalOpen] = useState(false);
   const [page, setPage] = useState(1);

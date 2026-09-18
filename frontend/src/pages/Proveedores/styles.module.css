@@ -1,0 +1,14 @@
+/**
+ * @file Estilos de la página de Proveedores.
+ * Define el contenedor, encabezado, título y ajustes responsivos.
+ */
+
+.page { padding: 24px; border-radius: 8px; }
+.header { margin-bottom: 16px; display: flex; justify-content: space-between; width: 100%; }
+.title { margin: 0 !important; }
+
+@media (max-width: 768px) {
+  .page { padding: 12px; }
+  .header { flex-wrap: wrap; gap: 8px; }
+  .title { font-size: 16px; }
+}

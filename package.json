@@ -11,6 +11,11 @@
     "install:all": "npm run backend:install && npm run frontend:install",
     "prisma:generate": "cd backend && npx prisma generate",
     "prisma:push": "cd backend && npx prisma db push",
-    "prisma:studio": "cd backend && npx prisma studio"
+    "prisma:studio": "cd backend && npx prisma studio",
+    "backend:build": "cd backend && npx tsc -p tsconfig.build.json",
+    "frontend:build": "cd frontend && npx vite build",
+    "start": "npx pm2-runtime start ecosystem.config.js",
+    "stop": "npx pm2 stop ecosystem.config.js",
+    "restart": "npx pm2 restart ecosystem.config.js"
   }
 }

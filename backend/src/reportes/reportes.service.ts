@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Servicio del módulo de Reportes.
+ * Contiene la lógica de negocio para generar reportes de ventas
+ * agrupados por fecha, producto, cliente y ventas diarias.
+ */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -5,6 +10,13 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ReportesService {
   constructor(private prisma: PrismaService) {}
 
+  /**
+   * Obtiene el reporte de ventas filtrado por rango de fechas.
+   * Incluye lista de ventas, total de ventas, ingresos totales y ticket promedio.
+   * @param desde - Fecha de inicio en formato ISO (opcional)
+   * @param hasta - Fecha de fin en formato ISO (opcional)
+   * @returns Reporte de ventas por fecha
+   */
   async ventasPorFecha(desde?: string, hasta?: string) {
     const where: any = {};
     if (desde || hasta) {
@@ -33,6 +45,12 @@ export class ReportesService {
     };
   }
 
+  /**
+   * Obtiene el reporte de ventas agrupado por producto.
+   * @param desde - Fecha de inicio en formato ISO (opcional)
+   * @param hasta - Fecha de fin en formato ISO (opcional)
+   * @returns Ventas agregadas por producto ordenadas por total descendente
+   */
   async ventasPorProducto(desde?: string, hasta?: string) {
     const where: any = {};
     if (desde || hasta) {
@@ -56,6 +74,12 @@ export class ReportesService {
     return { success: true, data: Object.values(agg).sort((a, b) => b.total - a.total) };
   }
 
+  /**
+   * Obtiene el reporte de ventas agrupado por cliente.
+   * @param desde - Fecha de inicio en formato ISO (opcional)
+   * @param hasta - Fecha de fin en formato ISO (opcional)
+   * @returns Ventas agregadas por cliente ordenadas por total descendente
+   */
   async ventasPorCliente(desde?: string, hasta?: string) {
     const where: any = {};
     if (desde || hasta) {
@@ -80,6 +104,13 @@ export class ReportesService {
     return { success: true, data: Object.values(agg).sort((a, b) => b.total - a.total) };
   }
 
+  /**
+   * Obtiene el reporte de ventas diarias en un rango de fechas.
+   * Por defecto muestra los últimos 30 días.
+   * @param desde - Fecha de inicio en formato ISO (opcional)
+   * @param hasta - Fecha de fin en formato ISO (opcional)
+   * @returns Ventas agregadas por día
+   */
   async ventasDiarias(desde?: string, hasta?: string) {
     const fin = hasta ? new Date(hasta) : new Date();
     const inicio = desde ? new Date(desde) : new Date(fin.getTime() - 30 * 24 * 60 * 60 * 1000);

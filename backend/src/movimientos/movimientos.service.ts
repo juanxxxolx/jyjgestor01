@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Servicio del módulo de Movimientos de Inventario.
+ * Contiene la lógica de negocio para registrar movimientos manuales
+ * (entradas, salidas, ajustes), actualizar el stock y consultar movimientos.
+ */
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
@@ -12,6 +17,15 @@ export class MovimientosService {
     private audit: AuditService,
   ) {}
 
+  /**
+   * Crea un movimiento de inventario y actualiza el stock del producto.
+   * Valida existencia del producto y cliente, y suficiencia de stock para salidas.
+   * @param dto - Datos del movimiento
+   * @param userId - ID del usuario que registra
+   * @param userName - Nombre del usuario para auditoría
+   * @param ip - Dirección IP para auditoría
+   * @returns Movimiento creado
+   */
   async create(dto: CreateMovimientoDto, userId: number, userName?: string, ip?: string) {
     const producto = await this.prisma.producto.findUnique({ where: { id_producto: dto.id_producto } });
     if (!producto) throw new NotFoundException(`Producto ${dto.id_producto} no encontrado`);
@@ -56,6 +70,12 @@ export class MovimientosService {
     return { success: true, data: movimiento };
   }
 
+  /**
+   * Obtiene todos los movimientos con paginación y filtro opcional por producto.
+   * @param productoId - ID del producto para filtrar (opcional)
+   * @param pagination - Parámetros de paginación
+   * @returns Resultado paginado con lista de movimientos
+   */
   async findAll(productoId: number | undefined, pagination: PaginationDto) {
     const where = productoId ? { id_producto: productoId } : undefined;
     const result = await paginate(this.prisma.movimiento, pagination, {
@@ -70,10 +90,23 @@ export class MovimientosService {
     return { success: true, ...result };
   }
 
+  /**
+   * Obtiene los movimientos de un producto específico.
+   * @param productoId - ID del producto
+   * @param pagination - Parámetros de paginación
+   * @returns Resultado paginado con movimientos del producto
+   */
   async findByProducto(productoId: number, pagination: PaginationDto) {
     return this.findAll(productoId, pagination);
   }
 
+  /**
+   * Calcula el nuevo stock según el tipo de movimiento.
+   * @param stockActual - Stock actual del producto
+   * @param tipo - Tipo de movimiento (ENTRADA, SALIDA, AJUSTE)
+   * @param cantidad - Cantidad del movimiento
+   * @returns Nuevo valor de stock calculado
+   */
   private calcularNuevoStock(stockActual: number, tipo: TipoMovimiento, cantidad: number): number {
     switch (tipo) {
       case TipoMovimiento.ENTRADA:

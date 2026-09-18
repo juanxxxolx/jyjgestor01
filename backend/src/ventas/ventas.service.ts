@@ -1,4 +1,10 @@
+/**
+ * @fileoverview Servicio del módulo de Ventas.
+ * Contiene la lógica de negocio para crear ventas, consultar,
+ * generar PDF de factura y anular ventas con restitución de stock.
+ */
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import * as PDFDocument from 'pdfkit';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { CreateVentaDto } from './dto/create-venta.dto';
@@ -12,6 +18,15 @@ export class VentasService {
     private audit: AuditService,
   ) {}
 
+  /**
+   * Crea una nueva venta con transacción.
+   * Valida stock, descuenta inventario, registra movimientos y actualiza saldo del cliente.
+   * @param dto - Datos de la venta (cliente opcional y detalle de productos)
+   * @param userId - ID del usuario que registra la venta
+   * @param userName - Nombre del usuario para auditoría
+   * @param ip - Dirección IP del usuario para auditoría
+   * @returns Venta creada con relaciones incluidas
+   */
   async create(dto: CreateVentaDto, userId: number, userName?: string, ip?: string) {
     const productos = await this.prisma.producto.findMany({
       where: { id_producto: { in: dto.detalle.map((d) => d.id_producto) } },
@@ -36,8 +51,12 @@ export class VentasService {
     });
 
     const total = detalleData.reduce((sum, d) => sum + d.subtotal, 0);
+    const idCliente = dto.id_cliente ?? null;
 
     const venta = await this.prisma.$transaction(async (tx) => {
+      if (idCliente) {
+        await tx.cliente.update({ where: { id_cliente: idCliente }, data: { saldo: { increment: total }, ultimo_pedido: new Date() } });
+      }
       const v = await tx.venta.create({
         data: {
           id_usuario: userId,
@@ -89,6 +108,11 @@ export class VentasService {
     return { success: true, data: venta };
   }
 
+  /**
+   * Obtiene todas las ventas con paginación.
+   * @param pagination - Parámetros de paginación
+   * @returns Resultado paginado con lista de ventas
+   */
   async findAll(pagination: PaginationDto) {
     const result = await paginate(this.prisma.venta, pagination, {
       include: {
@@ -101,6 +125,11 @@ export class VentasService {
     return { success: true, ...result };
   }
 
+  /**
+   * Obtiene una venta por su ID.
+   * @param id - ID de la venta
+   * @returns Venta encontrada con detalles, cliente y usuario
+   */
   async findOne(id: number) {
     const venta = await this.prisma.venta.findUnique({
       where: { id_venta: id },
@@ -114,6 +143,75 @@ export class VentasService {
     return { success: true, data: venta };
   }
 
+  /**
+   * Genera un archivo PDF con la factura de una venta.
+   * @param id - ID de la venta
+   * @returns Buffer con el contenido del PDF
+   */
+  async generatePdf(id: number): Promise<Buffer> {
+    const venta = await this.prisma.venta.findUnique({
+      where: { id_venta: id },
+      include: {
+        detalle: { include: { producto: true } },
+        cliente: true,
+        usuario: { select: { id_usuario: true, nombre: true } },
+      },
+    });
+    if (!venta) throw new NotFoundException(`Venta ${id} no encontrada`);
+
+    return new Promise((resolve, reject) => {
+      const doc = new PDFDocument({ size: 'A4', margin: 40 });
+      const chunks: Buffer[] = [];
+      doc.on('data', (chunk) => chunks.push(chunk));
+      doc.on('end', () => resolve(Buffer.concat(chunks)));
+      doc.on('error', reject);
+
+      doc.fontSize(20).text('JYJGestor', { align: 'center' });
+      doc.fontSize(12).text('Sistema de Inventario', { align: 'center' });
+      doc.moveDown(1.5);
+
+      doc.fontSize(10);
+      doc.text(`Factura #${venta.id_venta}`);
+      doc.text(`Cliente: ${venta.cliente?.nombre || 'Mostrador'}`);
+      doc.text(`Vendedor: ${venta.usuario?.nombre}`);
+      doc.text(`Fecha: ${venta.created_at.toLocaleDateString('es-CO')}`);
+      doc.text(`Estado: ${venta.estado}`);
+      doc.moveDown(1);
+
+      const tableTop = doc.y;
+      const colX = [40, 200, 320, 420, 480];
+      const headers = ['Producto', 'Cant.', 'Precio', 'Subtotal'];
+      doc.fontSize(10).font('Helvetica-Bold');
+      headers.forEach((h, i) => doc.text(h, colX[i], tableTop, { width: colX[i + 1] - colX[i] || 60 }));
+      doc.moveDown(0.5);
+
+      doc.font('Helvetica').fontSize(9);
+      venta.detalle.forEach((d) => {
+        const y = doc.y;
+        doc.text(d.producto?.nombre || `#${d.id_producto}`, colX[0], y, { width: colX[1] - colX[0] });
+        doc.text(String(d.cantidad), colX[1], y, { width: colX[2] - colX[1], align: 'center' });
+        doc.text(`$${Number(d.precio_unitario).toLocaleString('es-CO')}`, colX[2], y, { width: colX[3] - colX[2], align: 'right' });
+        doc.text(`$${Number(d.subtotal).toLocaleString('es-CO')}`, colX[3], y, { width: colX[4] - colX[3], align: 'right' });
+        doc.moveDown(0.3);
+      });
+
+      doc.moveDown(1);
+      doc.fontSize(14).font('Helvetica-Bold');
+      doc.text(`Total: $${Number(venta.total).toLocaleString('es-CO')}`, { align: 'right' });
+
+      doc.end();
+    });
+  }
+
+  /**
+   * Anula una venta y restituye el stock de los productos.
+   * Registra un movimiento de entrada por cada producto y un registro de auditoría.
+   * @param id - ID de la venta a anular
+   * @param userId - ID del usuario que anula
+   * @param userName - Nombre del usuario para auditoría
+   * @param ip - Dirección IP para auditoría
+   * @returns Mensaje de confirmación
+   */
   async anular(id: number, userId: number, userName?: string, ip?: string) {
     const venta = await this.prisma.venta.findUnique({
       where: { id_venta: id },

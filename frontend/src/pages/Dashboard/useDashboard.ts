@@ -1,9 +1,23 @@
+/**
+ * @file Hook personalizado para la página Dashboard.
+ * Obtiene y centraliza los datos necesarios: productos, clientes,
+ * movimientos y productos con bajo stock.
+ */
+
 import { useQuery } from '@tanstack/react-query';
 import { productosApi } from '../../api/productos.api';
 import { clientesApi } from '../../api/clientes.api';
 import { movimientosApi } from '../../api/movimientos.api';
 import type { Producto, Movimiento } from '../../types';
 
+/**
+ * Hook que ejecuta tres consultas paralelas (productos, clientes, movimientos)
+ * y deriva la lista de productos con stock por debajo del mínimo.
+ *
+ * @returns {object} - `productos`, `clientes`, `movimientos`, `bajoStock`,
+ *                     `isLoading` (true mientras alguna consulta cargue),
+ *                     `isError` (true si alguna consulta falló).
+ */
 export function useDashboard() {
   const { data: productosRes, isLoading: loadingProd, isError: errorProd } = useQuery({
     queryKey: ['productos-dash'],

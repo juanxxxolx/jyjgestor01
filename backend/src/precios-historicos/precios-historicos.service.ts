@@ -1,3 +1,8 @@
+/**
+ * @fileoverview Servicio del módulo de Precios Históricos.
+ * Contiene la lógica de negocio para consultar el historial de cambios
+ * de precios de productos.
+ */
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -5,6 +10,11 @@ import { PrismaService } from '../prisma/prisma.service';
 export class PreciosHistoricosService {
   constructor(private prisma: PrismaService) {}
 
+  /**
+   * Obtiene todos los precios históricos, opcionalmente filtrados por producto.
+   * @param productoId - ID del producto para filtrar (opcional)
+   * @returns Lista de precios históricos
+   */
   async findAll(productoId?: number) {
     const where = productoId ? { id_producto: productoId } : {};
     const historicos = await this.prisma.precioHistorico.findMany({
@@ -18,6 +28,11 @@ export class PreciosHistoricosService {
     return { success: true, data: historicos };
   }
 
+  /**
+   * Obtiene el historial de precios de un producto específico.
+   * @param productoId - ID del producto
+   * @returns Historial de precios del producto
+   */
   async findByProducto(productoId: number) {
     return this.findAll(productoId);
   }

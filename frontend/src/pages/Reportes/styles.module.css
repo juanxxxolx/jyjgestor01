@@ -1,3 +1,10 @@
+/** @file Página de reportes y estadísticas. Estilos para el contenedor. */
 .page {
   padding: 24px;
+}
+
+@media (max-width: 768px) {
+  .page { padding: 12px; }
+  .header { flex-wrap: wrap; gap: 8px; }
+  .title { font-size: 16px; }
 }

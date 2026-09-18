@@ -1,3 +1,10 @@
+/**
+ * @file Página de reportes y estadísticas de ventas.
+ * Permite seleccionar un rango de fechas y visualizar ventas diarias
+ * (gráfico de barras), por fecha (tabla con totales), por producto
+ * o por cliente.
+ */
+
 import { useState } from 'react';
 import { Card, DatePicker, Table, Typography, Row, Col, Statistic, Select, Space } from 'antd';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
@@ -8,6 +15,15 @@ import styles from './styles.module.css';
 
 const { RangePicker } = DatePicker;
 
+/**
+ * Componente de la página Reportes.
+ * - Selector de rango de fechas y vista (diarias, por fecha, por producto, por cliente).
+ * - Vista "diarias": gráfico de barras con ingresos por día.
+ * - Vista "fecha": tarjetas con total ventas, ingresos y ticket promedio + tabla.
+ * - Vista "producto": tabla con cantidad vendida y total por producto.
+ * - Vista "cliente": tabla con compras y total gastado por cliente.
+ * - Cada vista activa su correspondiente `useQuery` mediante `enabled`.
+ */
 export default function ReportesPage() {
   const [fechas, setFechas] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null]>([dayjs().subtract(30, 'day'), dayjs()]);
   const [vista, setVista] = useState('diarias');
@@ -61,7 +77,7 @@ export default function ReportesPage() {
             <Col span={8}><Card><Statistic title="Ingresos" value={`$${Number(porFecha.data.ingresos).toLocaleString('es-CO')}`} /></Card></Col>
             <Col span={8}><Card><Statistic title="Ticket promedio" value={`$${Number(porFecha.data.ticketPromedio).toLocaleString('es-CO')}`} /></Card></Col>
           </Row>
-          <Table dataSource={porFecha.data.ventas} loading={loading} rowKey="id_venta" size="small"
+          <Table dataSource={porFecha.data.ventas} loading={loading} rowKey="id_venta" size="small" scroll={{ x: 'max-content' }}
             columns={[
               { title: '#', dataIndex: 'id_venta', width: 50 },
               { title: 'Cliente', dataIndex: ['cliente', 'nombre'], render: (v: string) => v || 'Mostrador' },
@@ -88,7 +104,7 @@ export default function ReportesPage() {
       )}
 
       {vista === 'producto' && porProducto?.data && (
-        <Table dataSource={porProducto.data} loading={loading} rowKey="referencia" size="small"
+        <Table dataSource={porProducto.data} loading={loading} rowKey="referencia" size="small" scroll={{ x: 'max-content' }}
           columns={[
             { title: 'Producto', dataIndex: 'nombre' },
             { title: 'Referencia', dataIndex: 'referencia' },
@@ -99,7 +115,7 @@ export default function ReportesPage() {
       )}
 
       {vista === 'cliente' && porCliente?.data && (
-        <Table dataSource={porCliente.data} loading={loading} rowKey="cliente" size="small"
+        <Table dataSource={porCliente.data} loading={loading} rowKey="cliente" size="small" scroll={{ x: 'max-content' }}
           columns={[
             { title: 'Cliente', dataIndex: 'cliente' },
             { title: 'Compras', dataIndex: 'cantidad' },

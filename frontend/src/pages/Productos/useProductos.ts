@@ -1,3 +1,9 @@
+/**
+ * @file Hook personalizado para la gestión de productos.
+ * Centraliza consultas (productos, categorías, stock bajo, historial),
+ * mutaciones CRUD + subida de imagen, y control de modales/búsqueda.
+ */
+
 import { useState } from 'react';
 import { Form, message } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -7,6 +13,18 @@ import { categoriasApi } from '../../api/categorias.api';
 import { useAuth } from '../../context/AuthContext';
 import type { Producto } from '../../types';
 
+/**
+ * Hook que administra el flujo completo de productos.
+ *
+ * @remarks
+ * - Consulta productos paginados con búsqueda, categorías y alerta de stock bajo.
+ * - Consulta el historial de precios de un producto seleccionado.
+ * - Provee mutaciones: crear, actualizar, subir imagen y eliminar.
+ * - Controla la apertura/cierre de modales (producto e historial).
+ * - Depende del contexto de autenticación para permisos de administrador.
+ *
+ * @returns Objeto con datos, estado, mutaciones y controladores de UI.
+ */
 export function useProductos() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Producto | null>(null);
@@ -33,6 +51,12 @@ export function useProductos() {
   const { data: categorias } = useQuery({
     queryKey: ['categorias'],
     queryFn: () => categoriasApi.getAll(),
+  });
+
+  const { data: bajoStock } = useQuery({
+    queryKey: ['bajo-stock-productos'],
+    queryFn: () => productosApi.getLowStock(),
+    refetchInterval: 30_000,
   });
 
   const createMutation = useMutation({
@@ -83,7 +107,7 @@ export function useProductos() {
   };
 
   return {
-    data, isLoading, categorias,
+    data, isLoading, categorias, bajoStock,
     historial, historyLoading,
     modalOpen, editing, form, search,
     historyModalOpen, historyProducto,

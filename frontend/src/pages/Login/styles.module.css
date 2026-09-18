@@ -1,22 +1,44 @@
+/** @file Página de inicio de sesión. Estilos para el contenedor centrado, tarjeta y enlaces. */
 .container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f0f2f5;
+  background: #0a0e1a;
+  position: relative;
+  z-index: 1;
 }
 
 .card {
   width: 380px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  background: rgba(20, 25, 45, 0.85) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(79, 195, 247, 0.15);
+  border-radius: 12px;
+}
+
+.card :global(.ant-card-body) {
+  padding: 40px 32px;
 }
 
 .title {
   text-align: center;
   margin-bottom: 32px !important;
+  color: #e8eaf6 !important;
 }
 
 .forgotLink {
   text-align: center;
   margin-top: 16px;
+}
+
+.forgotLink a {
+  color: #90caf9;
+}
+
+@media (max-width: 768px) {
+  .page { padding: 12px; }
+  .header { flex-wrap: wrap; gap: 8px; }
+  .title { font-size: 16px; }
 }

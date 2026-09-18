@@ -1,3 +1,9 @@
+/**
+ * @file Página de auditoría.
+ * Muestra el registro de todas las acciones realizadas en el sistema
+ * con paginación, colores por tipo de acción y formato de fecha local.
+ */
+
 import { Table, Tag, Typography, Space } from 'antd';
 import { useAuditoria } from './useAuditoria';
 import styles from './styles.module.css';
@@ -10,6 +16,12 @@ const actionColors: Record<string, string> = {
   'Se registró': 'orange',
 };
 
+/**
+ * Componente de la página Auditoría.
+ * Renderiza una tabla paginada con columnas: Fecha, Usuario, Acción
+ * (con Tag coloreado según el tipo), Entidad y Detalle.
+ * Los colores de acción se definen en `actionColors`.
+ */
 export default function AuditoriaPage() {
   const { data, isLoading, page, setPage, limit } = useAuditoria();
 
@@ -28,6 +40,7 @@ export default function AuditoriaPage() {
           onChange: (p) => setPage(p),
           showSizeChanger: false,
         }}
+        scroll={{ x: 'max-content' }}
         columns={[
           {
             title: 'Fecha',

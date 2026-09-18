@@ -1,3 +1,9 @@
+/**
+ * @file Página de existencias / movimientos de inventario.
+ * Permite consultar, filtrar y registrar movimientos (entrada, salida, ajuste)
+ * sobre los productos. Incluye exportación a Excel.
+ */
+
 import { Table, Button, Modal, Form, Input, InputNumber, Select, Tag, Space, Typography } from 'antd';
 import { PlusOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useExistencias } from './useExistencias';
@@ -5,6 +11,15 @@ import { downloadExport } from '../../utils/download';
 import type { Cliente } from '../../types';
 import styles from './styles.module.css';
 
+/**
+ * Componente de la página Existencias.
+ * - Selector para filtrar movimientos por producto.
+ * - Tabla paginada con columnas: Producto, Referencia, Tipo (Tag coloreado),
+ *   Cantidad, Motivo, Cliente, Usuario y Fecha.
+ * - Modal para registrar un nuevo movimiento (producto, tipo, cantidad,
+ *   motivo y cliente opcional).
+ * - Botón de exportación a Excel.
+ */
 export default function ExistenciasPage() {
   const {
     movimientosRes, isLoading, productosRes, clientesRes,
@@ -50,6 +65,7 @@ export default function ExistenciasPage() {
           onChange: (p) => setPage(p),
           showSizeChanger: false,
         }}
+        scroll={{ x: 'max-content' }}
         columns={[
           { title: 'Producto', dataIndex: ['producto', 'nombre'], key: 'producto' },
           { title: 'Referencia', dataIndex: ['producto', 'referencia'], key: 'referencia' },
@@ -101,10 +117,14 @@ export default function ExistenciasPage() {
             />
           </Form.Item>
           <Form.Item name="cantidad" label="Cantidad" rules={[{ required: true }]}>
-            <InputNumber min={0.01} className={styles.formInput} />
+            <InputNumber min={0.01} max={999999} className={styles.formInput} />
           </Form.Item>
-          <Form.Item name="motivo" label="Motivo" rules={[{ required: true }]}>
-            <Input.TextArea rows={2} />
+          <Form.Item name="motivo" label="Motivo" rules={[
+            { required: true, message: 'Motivo requerido' },
+            { max: 500, message: 'Máximo 500 caracteres' },
+            { pattern: /^[\w\sáéíóúñüÁÉÍÓÚÑÜ.,;:!?\-()$]+$/, message: 'Caracteres no permitidos' }
+          ]}>
+            <Input.TextArea rows={2} maxLength={500} />
           </Form.Item>
           <Form.Item name="id_cliente" label="Cliente (opcional)">
             <Select

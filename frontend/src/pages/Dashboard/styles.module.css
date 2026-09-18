@@ -1,3 +1,4 @@
+/** @file Página principal del panel de control — Dashboard. Estilos para la cuadrícula de indicadores, alertas, tablas y gráficos. */
 .page {
   padding: 24px;
 }
@@ -12,4 +13,10 @@
 
 .card {
   margin-top: 24px;
+}
+
+@media (max-width: 768px) {
+  .page { padding: 12px; }
+  .header { flex-wrap: wrap; gap: 8px; }
+  .title { font-size: 16px; }
 }

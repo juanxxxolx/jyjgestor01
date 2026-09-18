@@ -9,15 +9,37 @@
 }
 
 .header {
-  background: #fff;
   padding: 0 24px;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  gap: 8px;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.userName {
+  max-width: 160px;
 }
 
 .content {
   margin: 24px;
-  background: #f0f2f5;
+}
+
+@media (max-width: 768px) {
+  .header { padding: 0 12px; }
+  .content { margin: 12px; }
+  .hideMobile { display: none; }
+  .userName { max-width: 100px; }
 }

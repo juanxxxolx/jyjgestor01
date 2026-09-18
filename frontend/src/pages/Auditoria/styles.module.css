@@ -1,7 +1,14 @@
+/** @file Página de auditoría. Estilos para el contenedor y título. */
 .page {
   padding: 24px;
 }
 
 .title {
   margin-bottom: 16px !important;
+}
+
+@media (max-width: 768px) {
+  .page { padding: 12px; }
+  .header { flex-wrap: wrap; gap: 8px; }
+  .title { font-size: 16px; }
 }

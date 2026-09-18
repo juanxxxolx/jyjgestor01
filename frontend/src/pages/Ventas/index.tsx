@@ -1,10 +1,30 @@
+/**
+ * @file Página de facturación y ventas.
+ * Permite registrar ventas seleccionando productos y clientes,
+ * visualizar el historial de ventas, anular ventas y generar
+ * recibos en formato PDF o impresión.
+ */
+
 import { useState, useRef } from 'react';
-import { Table, Button, Select, InputNumber, Card, Space, Typography, Tag, Divider, Row, Col, Modal, List, Popconfirm, Descriptions } from 'antd';
-import { ShoppingCartOutlined, DeleteOutlined, PlusOutlined, StopOutlined, FileTextOutlined, PrinterOutlined } from '@ant-design/icons';
+import { Table, Button, Select, InputNumber, Card, Space, Typography, Tag, Divider, Row, Col, Modal, List, Popconfirm, Descriptions, Input } from 'antd';
+import { ShoppingCartOutlined, DeleteOutlined, PlusOutlined, StopOutlined, FileTextOutlined, PrinterOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { useVentas } from './useVentas';
+import { ventasApi } from '../../api/ventas.api';
 import type { Producto } from '../../types';
 import styles from './styles.module.css';
 
+/**
+ * Página principal de Ventas.
+ *
+ * @component
+ * @description Renderiza el formulario de nueva venta (selector de cliente,
+ * agregar productos, líneas con cantidad/precio/subtotal, total y botón
+ * "Cobrar"), la tabla de historial de ventas (con paginación, tags de estado
+ * y acciones de ver recibo/anular), un modal para seleccionar productos
+ * disponibles y un modal de recibo con detalle de la venta.
+ *
+ * @returns {JSX.Element} Vista completa de facturación/ventas.
+ */
 export default function VentasPage() {
   const reciboRef = useRef<HTMLDivElement>(null);
   const {
@@ -16,7 +36,8 @@ export default function VentasPage() {
   } = useVentas();
 
   const [modalOpen, setModalOpen] = useState(false);
-  const productos = (productosRes?.data ?? []).filter((p: Producto) => p.stock > 0);
+  const [busqueda, setBusqueda] = useState('');
+  const productos = (productosRes?.data ?? []).filter((p: Producto) => p.stock > 0 && p.nombre.toLowerCase().includes(busqueda.toLowerCase()));
 
   return (
     <div className={styles.page}>
@@ -47,33 +68,35 @@ export default function VentasPage() {
 
             <Divider />
 
-            <table className={styles.lineasTable}>
-              <thead>
-                <tr><th>Producto</th><th style={{width:80}}>Cant.</th><th style={{width:100}}>Precio</th><th style={{width:100}}>Subtotal</th><th style={{width:40}}/></tr>
-              </thead>
-              <tbody>
-                {lineas.map((l) => (
-                  <tr key={l.key}>
-                    <td>{l.nombre}</td>
-                    <td>
-                      <InputNumber
-                        min={1}
-                        max={999}
-                        value={l.cantidad}
-                        onChange={(v) => cambiarCantidad(l.key, v ?? 1)}
-                        style={{ width: 70 }}
-                        size="small"
-                      />
-                    </td>
-                    <td>${l.precio_unitario.toLocaleString('es-CO')}</td>
-                    <td><strong>${l.subtotal.toLocaleString('es-CO')}</strong></td>
-                    <td>
-                      <Button size="small" danger icon={<DeleteOutlined />} onClick={() => quitarLinea(l.key)} />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div style={{ overflowX: 'auto' }}>
+              <table className={styles.lineasTable}>
+                <thead>
+                  <tr><th>Producto</th><th style={{width:80}}>Cant.</th><th style={{width:100}}>Precio</th><th style={{width:100}}>Subtotal</th><th style={{width:40}}/></tr>
+                </thead>
+                <tbody>
+                  {lineas.map((l) => (
+                    <tr key={l.key}>
+                      <td>{l.nombre}</td>
+                      <td>
+                        <InputNumber
+                          min={1}
+                          max={999}
+                          value={l.cantidad}
+                          onChange={(v) => cambiarCantidad(l.key, v ?? 1)}
+                          style={{ width: 70 }}
+                          size="small"
+                        />
+                      </td>
+                      <td>${l.precio_unitario.toLocaleString('es-CO')}</td>
+                      <td><strong>${l.subtotal.toLocaleString('es-CO')}</strong></td>
+                      <td>
+                        <Button size="small" danger icon={<DeleteOutlined />} onClick={() => quitarLinea(l.key)} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
             {lineas.length > 0 && (
               <>
@@ -97,6 +120,7 @@ export default function VentasPage() {
 
         <Col xs={24} lg={10}>
           <Typography.Title level={4}>Historial de ventas</Typography.Title>
+          <div style={{ overflowX: 'auto' }}>
           <Table
             dataSource={ventasRes?.data ?? []}
             loading={isLoading}
@@ -108,24 +132,28 @@ export default function VentasPage() {
               onChange: (p) => setPage(p),
               showSizeChanger: false,
             }}
+            scroll={{ x: 'max-content' }}
             columns={[
-              { title: '#', dataIndex: 'id_venta', key: 'id', width: 50 },
+              { title: '#', dataIndex: 'id_venta', key: 'id', width: 50, fixed: 'left' },
               {
                 title: 'Cliente',
                 dataIndex: ['cliente', 'nombre'],
                 key: 'cliente',
+                width: 130,
                 render: (v: string) => v || <Tag>Mostrador</Tag>,
               },
               {
                 title: 'Total',
                 dataIndex: 'total',
                 key: 'total',
+                width: 100,
                 render: (v: number) => `$${Number(v).toLocaleString('es-CO')}`,
               },
               {
                 title: 'Estado',
                 dataIndex: 'estado',
                 key: 'estado',
+                width: 100,
                 render: (v: string) => (
                   <Tag color={v === 'ANULADA' ? 'red' : 'green'}>{v === 'ANULADA' ? 'Anulada' : 'Completada'}</Tag>
                 ),
@@ -134,17 +162,19 @@ export default function VentasPage() {
                 title: 'Fecha',
                 dataIndex: 'created_at',
                 key: 'fecha',
+                width: 150,
                 render: (v: string) => new Date(v).toLocaleString('es-CO'),
               },
               {
                 title: 'Acción',
                 key: 'accion',
+                width: 110,
                 render: (_: any, r: any) => (
                   <Space>
-                    <Button size="small" icon={<FileTextOutlined />} onClick={() => setReciboVenta(r)}>Ver recibo</Button>
+                    <Button size="small" icon={<FileTextOutlined />} onClick={() => setReciboVenta(r)} />
                     {r.estado !== 'ANULADA' && (
                       <Popconfirm title="¿Anular venta?" description="Se revertirá el stock" onConfirm={() => anularMutation.mutate(r.id_venta)}>
-                        <Button size="small" danger icon={<StopOutlined />}>Anular</Button>
+                        <Button size="small" danger icon={<StopOutlined />} />
                       </Popconfirm>
                     )}
                   </Space>
@@ -152,18 +182,28 @@ export default function VentasPage() {
               },
             ]}
           />
+          </div>
         </Col>
       </Row>
 
       <Modal
         title="Seleccionar producto"
         open={modalOpen}
-        onCancel={() => setModalOpen(false)}
+        onCancel={() => { setModalOpen(false); setBusqueda(''); }}
+        afterOpenChange={(open) => { if (open) setBusqueda(''); }}
         footer={null}
         width={500}
       >
+        <Input.Search
+          placeholder="Buscar producto por nombre..."
+          allowClear
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          style={{ marginBottom: 12 }}
+        />
         <List
           dataSource={productos}
+          locale={{ emptyText: busqueda ? 'Sin resultados' : 'No hay productos disponibles' }}
           renderItem={(p: Producto) => (
             <List.Item
               actions={[
@@ -190,6 +230,9 @@ export default function VentasPage() {
         open={!!reciboVenta}
         onCancel={() => setReciboVenta(null)}
         footer={[
+          <Button key="pdf" icon={<FilePdfOutlined />} onClick={() => ventasApi.downloadPdf(reciboVenta?.id_venta)}>
+            PDF
+          </Button>,
           <Button key="print" type="primary" icon={<PrinterOutlined />} onClick={() => window.print()}>
             Imprimir
           </Button>,

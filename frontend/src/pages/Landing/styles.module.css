@@ -1,14 +1,26 @@
+/** @file Página de aterrizaje (Landing). Estilos para la tarjeta de presentación, logo e ícono. */
 .container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f0f2f5;
+  background: #0a0e1a;
+  position: relative;
+  z-index: 1;
 }
 
 .card {
   width: 400px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 90vw;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  background: rgba(20, 25, 45, 0.85) !important;
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(79, 195, 247, 0.15);
+  border-radius: 12px;
+}
+
+.card :global(.ant-card-body) {
+  padding: 40px 32px;
 }
 
 .logoSection {
@@ -16,22 +28,31 @@
 }
 
 .logoIcon {
-  font-size: 48px;
-  color: #1677ff;
+  font-size: 56px;
+  color: #4fc3f7;
   margin-bottom: 16px;
+  display: block;
 }
 
 .title {
   margin-bottom: 4px !important;
+  color: #e8eaf6 !important;
 }
 
 .subtitle {
   display: block;
   font-size: 15px;
+  color: #90caf9 !important;
 }
 
 .buttons {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .page { padding: 12px; }
+  .header { flex-wrap: wrap; gap: 8px; }
+  .title { font-size: 16px; }
 }

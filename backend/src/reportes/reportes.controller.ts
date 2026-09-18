@@ -1,29 +1,61 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+/**
+ * @fileoverview Controlador del módulo de Reportes.
+ * Proporciona endpoints para obtener reportes de ventas agrupados
+ * por fecha, producto, cliente y ventas diarias.
+ * Todas las rutas requieren autenticación JWT.
+ */
+import { Controller, Get, Query, UseGuards, ValidationPipe } from '@nestjs/common';
 import { ReportesService } from './reportes.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ReportesQueryDto } from './dto/reportes-query.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('reportes')
 export class ReportesController {
   constructor(private reportesService: ReportesService) {}
 
+  /**
+   * Obtiene reporte de ventas filtrado por rango de fechas.
+   * Incluye total de ventas, ingresos y ticket promedio.
+   * @param desde - Fecha de inicio (YYYY-MM-DD)
+   * @param hasta - Fecha de fin (YYYY-MM-DD)
+   * @returns Reporte de ventas por fecha
+   */
   @Get('ventas-por-fecha')
-  ventasPorFecha(@Query('desde') desde?: string, @Query('hasta') hasta?: string) {
-    return this.reportesService.ventasPorFecha(desde, hasta);
+  ventasPorFecha(@Query(new ValidationPipe({ transform: true })) query: ReportesQueryDto) {
+    return this.reportesService.ventasPorFecha(query.desde, query.hasta);
   }
 
+  /**
+   * Obtiene reporte de ventas agrupado por producto.
+   * @param desde - Fecha de inicio (YYYY-MM-DD)
+   * @param hasta - Fecha de fin (YYYY-MM-DD)
+   * @returns Ventas agregadas por producto
+   */
   @Get('ventas-por-producto')
-  ventasPorProducto(@Query('desde') desde?: string, @Query('hasta') hasta?: string) {
-    return this.reportesService.ventasPorProducto(desde, hasta);
+  ventasPorProducto(@Query(new ValidationPipe({ transform: true })) query: ReportesQueryDto) {
+    return this.reportesService.ventasPorProducto(query.desde, query.hasta);
   }
 
+  /**
+   * Obtiene reporte de ventas agrupado por cliente.
+   * @param desde - Fecha de inicio (YYYY-MM-DD)
+   * @param hasta - Fecha de fin (YYYY-MM-DD)
+   * @returns Ventas agregadas por cliente
+   */
   @Get('ventas-por-cliente')
-  ventasPorCliente(@Query('desde') desde?: string, @Query('hasta') hasta?: string) {
-    return this.reportesService.ventasPorCliente(desde, hasta);
+  ventasPorCliente(@Query(new ValidationPipe({ transform: true })) query: ReportesQueryDto) {
+    return this.reportesService.ventasPorCliente(query.desde, query.hasta);
   }
 
+  /**
+   * Obtiene reporte de ventas diarias en un rango de fechas.
+   * @param desde - Fecha de inicio (YYYY-MM-DD)
+   * @param hasta - Fecha de fin (YYYY-MM-DD)
+   * @returns Ventas agregadas por día
+   */
   @Get('ventas-diarias')
-  ventasDiarias(@Query('desde') desde?: string, @Query('hasta') hasta?: string) {
-    return this.reportesService.ventasDiarias(desde, hasta);
+  ventasDiarias(@Query(new ValidationPipe({ transform: true })) query: ReportesQueryDto) {
+    return this.reportesService.ventasDiarias(query.desde, query.hasta);
   }
 }

@@ -1,8 +1,22 @@
+/**
+ * @file Hook personalizado para la página ForgotPassword.
+ * Gestiona el envío del email de recuperación y la respuesta del servidor.
+ */
+
 import { useState } from 'react';
-import { message } from 'antd';
+import { message, Modal } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../../api/auth.api';
 
+/**
+ * Hook que maneja la solicitud de recuperación de contraseña.
+ * - Llama a `authApi.forgotPassword` con el email.
+ * - Si recibe un token, muestra un Modal confirmando y redirige a
+ *   `/reset-password?token=...` (simulación; en producción se enviaría por correo).
+ * - Si no recibe token, muestra mensaje de éxito y redirige a `/login`.
+ *
+ * @returns {object} - `loading` (boolean), `onFinish` (función `{ email }`).
+ */
 export function useForgotPassword() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -12,8 +26,13 @@ export function useForgotPassword() {
     try {
       const res = await authApi.forgotPassword(values.email);
       if (res.token) {
-        message.success('Token generado. Redirigiendo al cambio de contraseña...');
-        setTimeout(() => navigate(`/reset-password?token=${res.token}`), 1000);
+        Modal.confirm({
+          title: 'Token generado',
+          content: 'Token: ' + res.token + '\n\nEn produccion se enviaria por correo.',
+          okText: 'Ir a restablecer',
+          onOk: () => navigate('/reset-password?token=' + res.token),
+          onCancel: () => {},
+        });
       } else {
         message.success(res.message);
         setTimeout(() => navigate('/login'), 2000);

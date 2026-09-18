@@ -1,3 +1,9 @@
+/**
+ * @file Hook personalizado para la gestión de categorías.
+ * Centraliza la consulta de categorías, las mutaciones CRUD
+ * y el control del modal de creación/edición.
+ */
+
 import { useState } from 'react';
 import { Form, message } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -5,6 +11,17 @@ import { categoriasApi } from '../../api/categorias.api';
 import { useAuth } from '../../context/AuthContext';
 import type { Categoria } from '../../types';
 
+/**
+ * Hook que administra el flujo de categorías.
+ *
+ * @remarks
+ * - Consulta la lista completa de categorías.
+ * - Provee mutaciones: crear, actualizar y eliminar.
+ * - Controla el modal de formulario y depende del contexto de auth
+ *   para permisos de administrador.
+ *
+ * @returns Objeto con datos, estado, mutaciones y controladores.
+ */
 export function useCategorias() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Categoria | null>(null);

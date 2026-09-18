@@ -1,6 +1,11 @@
+/**
+ * @file Estilos de la página de Productos.
+ * Define el layout de página, encabezado con título y acciones,
+ * ancho completo del input numérico en formularios y ajustes responsivos.
+ */
+
 .page {
   padding: 24px;
-  background: #fff;
   border-radius: 8px;
 }
 
@@ -17,4 +22,10 @@
 
 .formInput {
   width: 100%;
+}
+
+@media (max-width: 768px) {
+  .page { padding: 12px; }
+  .header { flex-wrap: wrap; gap: 8px; }
+  .title { font-size: 16px; }
 }

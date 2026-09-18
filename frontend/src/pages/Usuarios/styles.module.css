@@ -1,6 +1,6 @@
+/** @file Página de administración de usuarios. Estilos para el encabezado y la tabla. */
 .page {
   padding: 24px;
-  background: #fff;
   border-radius: 8px;
 }
 
@@ -13,4 +13,10 @@
 
 .title {
   margin: 0 !important;
+}
+
+@media (max-width: 768px) {
+  .page { padding: 12px; }
+  .header { flex-wrap: wrap; gap: 8px; }
+  .title { font-size: 16px; }
 }

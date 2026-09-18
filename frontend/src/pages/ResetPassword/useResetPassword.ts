@@ -1,11 +1,28 @@
+/**
+ * @file Hook personalizado para la página ResetPassword.
+ * Extrae el token de la URL, maneja el envío de la nueva contraseña
+ * y los estados de carga y éxito.
+ */
+
 import { useState } from 'react';
 import { message } from 'antd';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { authApi } from '../../api/auth.api';
 
+/**
+ * Hook que gestiona el restablecimiento de contraseña.
+ * - Lee el token del query string `?token=...`.
+ * - `onFinish`: llama a `authApi.resetPassword` con el token y la nueva contraseña.
+ * - En éxito: marca `success = true` para que el componente muestre el resultado.
+ * - En error: muestra mensaje con antd `message`.
+ *
+ * @returns {object} - `loading` (boolean), `success` (boolean),
+ *                     `onFinish` (función `{ password }`),
+ *                     `hasToken` (boolean, true si hay token en la URL).
+ */
 export function useResetPassword() {
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const [success, setSuccess] = useState(false);
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
 
@@ -13,8 +30,7 @@ export function useResetPassword() {
     setLoading(true);
     try {
       await authApi.resetPassword(token, values.password);
-      message.success('Contraseña actualizada. Redirigiendo al login...');
-      setTimeout(() => navigate('/login', { replace: true }), 2000);
+      setSuccess(true);
     } catch (err: any) {
       message.error(err.response?.data?.message || 'Error al restablecer contraseña');
     } finally {
@@ -22,5 +38,5 @@ export function useResetPassword() {
     }
   };
 
-  return { loading, onFinish, hasToken: !!token };
+  return { loading, success, onFinish, hasToken: !!token };
 }

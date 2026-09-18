@@ -1,6 +1,6 @@
+/** @file Página de existencias y movimientos. Estilos para el encabezado, tabla y formulario. */
 .page {
   padding: 24px;
-  background: #fff;
   border-radius: 8px;
 }
 
@@ -17,4 +17,10 @@
 
 .formInput {
   width: 100%;
+}
+
+@media (max-width: 768px) {
+  .page { padding: 12px; }
+  .header { flex-wrap: wrap; gap: 8px; }
+  .title { font-size: 16px; }
 }

@@ -1,3 +1,9 @@
+/**
+ * @file Hook personalizado para la gestión de ventas.
+ * Centraliza las consultas, mutaciones y la lógica de estado
+ * del carrito de ventas (líneas, cliente, total, recibo).
+ */
+
 import { useState } from 'react';
 import { Form, message } from 'antd';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -6,15 +12,33 @@ import { productosApi } from '../../api/productos.api';
 import { clientesApi } from '../../api/clientes.api';
 import type { Producto, Cliente } from '../../types';
 
+/** Representa una línea de producto dentro del carrito de venta. */
 export interface LineaVenta {
+  /** Identificador único de la línea (cliente). */
   key: string;
+  /** ID del producto. */
   id_producto: number;
+  /** Nombre del producto. */
   nombre: string;
+  /** Cantidad seleccionada. */
   cantidad: number;
+  /** Precio unitario del producto. */
   precio_unitario: number;
+  /** Subtotal (cantidad * precio_unitario). */
   subtotal: number;
 }
 
+/**
+ * Hook que administra el flujo completo de ventas.
+ *
+ * @remarks
+ * - Consulta la lista paginada de ventas, productos disponibles y clientes.
+ * - Mantiene el estado local del carrito (líneas), cliente seleccionado y recibo.
+ * - Provee mutaciones para crear y anular ventas.
+ * - Calcula el total en tiempo real.
+ *
+ * @returns Objeto con datos, estado, mutaciones y funciones auxiliares.
+ */
 export function useVentas() {
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
