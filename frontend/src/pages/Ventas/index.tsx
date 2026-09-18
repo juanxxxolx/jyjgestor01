@@ -5,7 +5,7 @@
  * recibos en formato PDF o impresión.
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Table, Button, Select, InputNumber, Card, Space, Typography, Tag, Divider, Row, Col, Modal, List, Popconfirm, Descriptions, Input } from 'antd';
 import { ShoppingCartOutlined, DeleteOutlined, PlusOutlined, StopOutlined, FileTextOutlined, PrinterOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { useVentas } from './useVentas';
@@ -39,20 +39,13 @@ export default function VentasPage() {
   const [busqueda, setBusqueda] = useState('');
   const productos = (productosRes?.data ?? []).filter((p: Producto) => p.stock > 0 && p.nombre.toLowerCase().includes(busqueda.toLowerCase()));
 
-  // Auto-seleccionar cliente cuando la búsqueda retorna exactamente 1 resultado
-  const clienteEncontrado = clientesRes?.data?.length === 1 ? clientesRes.data[0] : null;
-  useEffect(() => {
-    if (clienteEncontrado && !idCliente) {
-      setIdCliente(clienteEncontrado.id_cliente);
-    }
-  }, [clienteEncontrado, idCliente, setIdCliente]);
-
-  // Limpiar selección si se borra la búsqueda
-  useEffect(() => {
-    if (!clienteSearch && idCliente) {
-      setIdCliente(undefined);
-    }
-  }, [clienteSearch, idCliente, setIdCliente]);
+  // Clientes filtrados por la búsqueda (para el Select)
+  const clientesFiltrados = clienteSearch
+    ? (clientesRes?.data ?? []).filter((c: any) =>
+        (c.telefono?.includes(clienteSearch)) ||
+        (c.nombre?.toLowerCase().includes(clienteSearch.toLowerCase()))
+      )
+    : (clientesRes?.data ?? []);
 
   return (
     <div className={styles.page}>
@@ -64,7 +57,7 @@ export default function VentasPage() {
             <Space direction="vertical" style={{ width: '100%' }}>
               <Space direction="vertical" style={{ width: '100%' }}>
                 <Input.Search
-                  placeholder="Buscar cliente por teléfono..."
+                  placeholder="Buscar cliente por teléfono o nombre..."
                   allowClear
                   value={clienteSearch}
                   onChange={(e) => setClienteSearch(e.target.value)}
@@ -73,21 +66,23 @@ export default function VentasPage() {
                   enterButton
                 />
                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  Escribe el número de teléfono y presiona Enter para buscar
+                  Escribe teléfono o nombre y presiona Enter para filtrar
                 </Typography.Text>
               </Space>
-              {clienteEncontrado && (
-                <div style={{ padding: 12, background: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: 6, marginBottom: 8 }}>
-                  <Typography.Text strong>Cliente encontrado:</Typography.Text>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-                    <span>
-                      {clienteEncontrado.nombre}
-                      {clienteEncontrado.telefono && <span style={{ marginLeft: 8, color: '#666' }}>— {clienteEncontrado.telefono}</span>}
-                    </span>
-                    <Button size="small" danger onClick={() => { setIdCliente(undefined); setClienteSearch(''); }}>Quitar</Button>
-                  </div>
-                </div>
-              )}
+              <Select
+                allowClear
+                showSearch
+                placeholder="Seleccionar cliente (opcional)"
+                style={{ width: '100%' }}
+                value={idCliente}
+                onChange={setIdCliente}
+                optionFilterProp="label"
+                options={clientesFiltrados.map((c: any) => ({
+                  value: c.id_cliente,
+                  label: `${c.nombre}${c.telefono ? ` — ${c.telefono}` : ''}`,
+                }))}
+              />
+
               <Button icon={<PlusOutlined />} onClick={() => setModalOpen(true)} block>
                 Agregar producto
               </Button>
