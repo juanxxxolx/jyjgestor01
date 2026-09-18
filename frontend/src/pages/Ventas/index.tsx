@@ -5,8 +5,8 @@
  * recibos en formato PDF o impresión.
  */
 
-import { useState, useRef } from 'react';
-import { Table, Button, Select, InputNumber, Card, Space, Typography, Tag, Divider, Row, Col, Modal, List, Popconfirm, Descriptions, Input } from 'antd';
+import { useState, useRef, useEffect } from 'react';
+import { Table, Button, Select, InputNumber, Card, Space, Typography, Tag, Divider, Row, Col, Modal, List, Popconfirm, Descriptions, Input, Alert } from 'antd';
 import { ShoppingCartOutlined, DeleteOutlined, PlusOutlined, StopOutlined, FileTextOutlined, PrinterOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { useVentas } from './useVentas';
 import { ventasApi } from '../../api/ventas.api';
@@ -39,13 +39,27 @@ export default function VentasPage() {
   const [busqueda, setBusqueda] = useState('');
   const productos = (productosRes?.data ?? []).filter((p: Producto) => p.stock > 0 && p.nombre.toLowerCase().includes(busqueda.toLowerCase()));
 
-  // Clientes filtrados por la búsqueda (para el Select)
-  const clientesFiltrados = clienteSearch
-    ? (clientesRes?.data ?? []).filter((c: any) =>
-        (c.telefono?.includes(clienteSearch)) ||
-        (c.nombre?.toLowerCase().includes(clienteSearch.toLowerCase()))
-      )
-    : (clientesRes?.data ?? []);
+  // Clientes que coinciden SOLO por teléfono
+  const clientesPorTelefono = clienteSearch
+    ? (clientesRes?.data ?? []).filter((c: any) => c.telefono?.includes(clienteSearch))
+    : [];
+
+  // Cliente único para auto-selección
+  const clienteUnico = clientesPorTelefono.length === 1 ? clientesPorTelefono[0] : null;
+
+  // Auto-seleccionar si hay exactamente 1 coincidencia
+  useEffect(() => {
+    if (clienteUnico && idCliente !== clienteUnico.id_cliente) {
+      setIdCliente(clienteUnico.id_cliente);
+    }
+  }, [clienteUnico, idCliente, setIdCliente]);
+
+  // Limpiar selección si se borra la búsqueda
+  useEffect(() => {
+    if (!clienteSearch && idCliente) {
+      setIdCliente(undefined);
+    }
+  }, [clienteSearch, idCliente, setIdCliente]);
 
   return (
     <div className={styles.page}>
@@ -55,9 +69,8 @@ export default function VentasPage() {
 
           <Card title="Nueva venta" className={styles.card}>
             <Space direction="vertical" style={{ width: '100%' }}>
-              <Space direction="vertical" style={{ width: '100%' }}>
                 <Input.Search
-                  placeholder="Buscar cliente por teléfono o nombre..."
+                  placeholder="Buscar cliente por teléfono..."
                   allowClear
                   value={clienteSearch}
                   onChange={(e) => setClienteSearch(e.target.value)}
@@ -66,27 +79,34 @@ export default function VentasPage() {
                   enterButton
                 />
                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  Escribe teléfono o nombre y presiona Enter para filtrar
+                  Escribe el número de teléfono y presiona Enter para buscar
                 </Typography.Text>
+                {clienteSearch && (
+                  <Space direction="vertical" style={{ width: '100%' }}>
+                    {clientesPorTelefono.length === 0 && (
+                      <Alert type="warning" message="No se encontró cliente con ese teléfono" style={{ width: '100%' }} />
+                    )}
+                    {clientesPorTelefono.length > 1 && (
+                      <Alert type="info" message={`Se encontraron ${clientesPorTelefono.length} clientes. Refina la búsqueda.`} style={{ width: '100%' }} />
+                    )}
+                    {clienteUnico && (
+                      <div style={{ padding: 12, background: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: 6, width: '100%' }}>
+                        <Typography.Text strong>Cliente seleccionado:</Typography.Text>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+                          <span>
+                            {clienteUnico.nombre}
+                            {clienteUnico.telefono && <span style={{ marginLeft: 8, color: '#666' }}>— {clienteUnico.telefono}</span>}
+                          </span>
+                          <Button size="small" danger onClick={() => { setIdCliente(undefined); setClienteSearch(''); }}>Quitar</Button>
+                        </div>
+                      </div>
+                    )}
+                  </Space>
+                )}
+                <Button icon={<PlusOutlined />} onClick={() => setModalOpen(true)} block>
+                  Agregar producto
+                </Button>
               </Space>
-              <Select
-                allowClear
-                showSearch
-                placeholder="Seleccionar cliente (opcional)"
-                style={{ width: '100%' }}
-                value={idCliente}
-                onChange={setIdCliente}
-                optionFilterProp="label"
-                options={clientesFiltrados.map((c: any) => ({
-                  value: c.id_cliente,
-                  label: `${c.nombre}${c.telefono ? ` — ${c.telefono}` : ''}`,
-                }))}
-              />
-
-              <Button icon={<PlusOutlined />} onClick={() => setModalOpen(true)} block>
-                Agregar producto
-              </Button>
-            </Space>
 
             <Divider />
 
