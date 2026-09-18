@@ -28,12 +28,14 @@ export default function CotizacionesPage() {
   const [page, setPage] = useState(1);
   const [lineas, setLineas] = useState<Linea[]>([]);
   const [idCliente, setIdCliente] = useState<number | undefined>(undefined);
+  const [clienteSearch, setClienteSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [busqueda, setBusqueda] = useState('');
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingCotizacion, setEditingCotizacion] = useState<any>(null);
   const [editLineas, setEditLineas] = useState<Linea[]>([]);
   const [editIdCliente, setEditIdCliente] = useState<number | undefined>(undefined);
+  const [editClienteSearch, setEditClienteSearch] = useState('');
   const [editBusqueda, setEditBusqueda] = useState('');
   const [editProductoModalOpen, setEditProductoModalOpen] = useState(false);
   const qc = useQueryClient();
@@ -49,8 +51,14 @@ export default function CotizacionesPage() {
   });
 
   const { data: clientesRes } = useQuery({
-    queryKey: ['clientes-cotizacion'],
-    queryFn: () => clientesApi.getAll(undefined, 1, 1000),
+    queryKey: ['clientes-cotizacion', clienteSearch],
+    queryFn: () => clientesApi.getAll(clienteSearch || undefined, 1, 1000),
+  });
+
+  const { data: editClientesRes } = useQuery({
+    queryKey: ['clientes-cotizacion-edit', editClienteSearch],
+    queryFn: () => clientesApi.getAll(editClienteSearch || undefined, 1, 1000),
+    enabled: editModalOpen,
   });
 
   const createMutation = useMutation({
@@ -157,7 +165,20 @@ export default function CotizacionesPage() {
           <Typography.Title level={4}>Cotizaciones / Presupuestos</Typography.Title>
           <Card title="Nueva cotización">
             <Space direction="vertical" style={{ width: '100%' }}>
-              <Select allowClear showSearch placeholder="Cliente (opcional)" style={{ width: '100%' }} value={idCliente} onChange={setIdCliente} optionFilterProp="label" options={(clientesRes?.data ?? []).map((c: any) => ({ value: c.id_cliente, label: c.nombre }))} />
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <Input.Search
+                  placeholder="Buscar cliente por teléfono..."
+                  allowClear
+                  value={clienteSearch}
+                  onChange={(e) => setClienteSearch(e.target.value)}
+                  style={{ width: '100%' }}
+                  enterButton
+                />
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  Escribe el número de teléfono para buscar el cliente
+                </Typography.Text>
+              </Space>
+              <Select allowClear showSearch placeholder="Seleccionar cliente (opcional)" style={{ width: '100%' }} value={idCliente} onChange={setIdCliente} optionFilterProp="label" options={(clientesRes?.data ?? []).map((c: any) => ({ value: c.id_cliente, label: `${c.nombre}${c.telefono ? ` — ${c.telefono}` : ''}` }))} />
               <Button icon={<PlusOutlined />} onClick={() => setModalOpen(true)} block>Agregar producto</Button>
             </Space>
             <Divider />
@@ -240,8 +261,21 @@ export default function CotizacionesPage() {
         />
       </Modal>
 
-      <Modal title="Editar cotización" open={editModalOpen} onCancel={() => { setEditModalOpen(false); setEditingCotizacion(null); setEditLineas([]); setEditIdCliente(undefined); setEditBusqueda(''); setEditProductoModalOpen(false); }} footer={null} width={600}>
-        <Select allowClear showSearch placeholder="Cliente (opcional)" style={{ width: '100%', marginBottom: 12 }} value={editIdCliente} onChange={setEditIdCliente} optionFilterProp="label" options={(clientesRes?.data ?? []).map((c: any) => ({ value: c.id_cliente, label: c.nombre }))} />
+      <Modal title="Editar cotización" open={editModalOpen} onCancel={() => { setEditModalOpen(false); setEditingCotizacion(null); setEditLineas([]); setEditIdCliente(undefined); setEditBusqueda(''); setEditProductoModalOpen(false); setEditClienteSearch(''); }} footer={null} width={600}>
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <Input.Search
+            placeholder="Buscar cliente por teléfono..."
+            allowClear
+            value={editClienteSearch}
+            onChange={(e) => setEditClienteSearch(e.target.value)}
+            style={{ width: '100%' }}
+            enterButton
+          />
+          <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+            Escribe el número de teléfono para buscar el cliente
+          </Typography.Text>
+        </Space>
+        <Select allowClear showSearch placeholder="Seleccionar cliente (opcional)" style={{ width: '100%', marginBottom: 12 }} value={editIdCliente} onChange={setEditIdCliente} optionFilterProp="label" options={(editClientesRes?.data ?? []).map((c: any) => ({ value: c.id_cliente, label: `${c.nombre}${c.telefono ? ` — ${c.telefono}` : ''}` }))} />
         <Button icon={<PlusOutlined />} onClick={() => setEditProductoModalOpen(true)} block style={{ marginBottom: 12 }}>Agregar producto</Button>
         <Divider />
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
