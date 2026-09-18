@@ -1,0 +1,12 @@
+/**
+ * @file Estilos de la página de Cotizaciones.
+ * Define el padding de la página y ajustes responsivos básicos.
+ */
+
+.page { padding: 24px; }
+
+@media (max-width: 768px) {
+  .page { padding: 12px; }
+  .header { flex-wrap: wrap; gap: 8px; }
+  .title { font-size: 16px; }
+}
