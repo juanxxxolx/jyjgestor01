@@ -44,6 +44,7 @@ export function useVentas() {
   const [limit] = useState(20);
   const [lineas, setLineas] = useState<LineaVenta[]>([]);
   const [idCliente, setIdCliente] = useState<number | undefined>(undefined);
+  const [clienteSearch, setClienteSearch] = useState('');
   const [reciboVenta, setReciboVenta] = useState<any>(null);
   const [form] = Form.useForm();
   const qc = useQueryClient();
@@ -59,8 +60,8 @@ export function useVentas() {
   });
 
   const { data: clientesRes } = useQuery({
-    queryKey: ['clientes-venta'],
-    queryFn: () => clientesApi.getAll(undefined, 1, 1000),
+    queryKey: ['clientes-venta', clienteSearch],
+    queryFn: () => clientesApi.getAll(clienteSearch || undefined, 1, 1000),
   });
 
   const { data: reciboData, isLoading: reciboLoading } = useQuery({
@@ -140,7 +141,7 @@ export function useVentas() {
   return {
     ventasRes, isLoading,
     productosRes, clientesRes,
-    lineas, idCliente, setIdCliente,
+    lineas, idCliente, setIdCliente, clienteSearch, setClienteSearch,
     total, form, page, setPage, limit,
     reciboVenta, reciboData, reciboLoading,
     createMutation, anularMutation,

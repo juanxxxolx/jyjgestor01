@@ -28,6 +28,7 @@ export function useExistencias() {
   const [page, setPage] = useState(1);
   const [limit] = useState(20);
   const [productoFiltro, setProductoFiltro] = useState<number | undefined>(undefined);
+  const [clienteSearch, setClienteSearch] = useState('');
   const [form] = Form.useForm();
   const qc = useQueryClient();
 
@@ -42,8 +43,8 @@ export function useExistencias() {
   });
 
   const { data: clientesRes } = useQuery({
-    queryKey: ['clientes-select', 1, 200],
-    queryFn: () => clientesApi.getAll(undefined, 1, 200),
+    queryKey: ['clientes-select', clienteSearch],
+    queryFn: () => clientesApi.getAll(clienteSearch || undefined, 1, 200),
   });
 
   const createMutation = useMutation({
@@ -65,5 +66,6 @@ export function useExistencias() {
     modalOpen, form, tipoColor, productoFiltro,
     page, setPage, limit,
     createMutation, setModalOpen, setProductoFiltro,
+    clienteSearch, setClienteSearch,
   };
 }

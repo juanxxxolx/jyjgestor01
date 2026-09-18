@@ -29,7 +29,7 @@ export default function VentasPage() {
   const reciboRef = useRef<HTMLDivElement>(null);
   const {
     ventasRes, isLoading, productosRes, clientesRes,
-    lineas, idCliente, setIdCliente, total, page, setPage, limit,
+    lineas, idCliente, setIdCliente, clienteSearch, setClienteSearch, total, page, setPage, limit,
     reciboVenta, reciboData, reciboLoading,
     createMutation, anularMutation, agregarProducto, cambiarCantidad, quitarLinea, registrarVenta,
     setReciboVenta,
@@ -47,17 +47,30 @@ export default function VentasPage() {
 
           <Card title="Nueva venta" className={styles.card}>
             <Space direction="vertical" style={{ width: '100%' }}>
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <Input.Search
+                  placeholder="Buscar cliente por teléfono..."
+                  allowClear
+                  value={clienteSearch}
+                  onChange={(e) => setClienteSearch(e.target.value)}
+                  style={{ width: '100%' }}
+                  enterButton
+                />
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  Escribe el número de teléfono para buscar el cliente
+                </Typography.Text>
+              </Space>
               <Select
                 allowClear
                 showSearch
-                placeholder="Cliente (opcional)"
+                placeholder="Seleccionar cliente (opcional)"
                 style={{ width: '100%' }}
                 value={idCliente}
                 onChange={setIdCliente}
                 optionFilterProp="label"
                 options={(clientesRes?.data ?? []).map((c: any) => ({
                   value: c.id_cliente,
-                  label: c.nombre,
+                  label: `${c.nombre}${c.telefono ? ` — ${c.telefono}` : ''}`,
                 }))}
               />
 

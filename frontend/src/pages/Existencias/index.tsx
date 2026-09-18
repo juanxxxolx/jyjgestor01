@@ -26,6 +26,7 @@ export default function ExistenciasPage() {
     modalOpen, form, tipoColor, productoFiltro,
     page, setPage, limit,
     createMutation, setModalOpen, setProductoFiltro,
+    clienteSearch, setClienteSearch,
   } = useExistencias();
 
   return (
@@ -127,6 +128,19 @@ export default function ExistenciasPage() {
             <Input.TextArea rows={2} maxLength={500} />
           </Form.Item>
           <Form.Item name="id_cliente" label="Cliente (opcional)">
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <Input.Search
+                placeholder="Buscar cliente por teléfono..."
+                allowClear
+                value={clienteSearch}
+                onChange={(e) => setClienteSearch(e.target.value)}
+                style={{ width: '100%' }}
+                enterButton
+              />
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                Escribe el número de teléfono para buscar el cliente
+              </Typography.Text>
+            </Space>
             <Select
               allowClear
               showSearch
@@ -134,7 +148,7 @@ export default function ExistenciasPage() {
               placeholder="Seleccionar cliente"
               options={(clientesRes?.data ?? []).map((c: Cliente) => ({
                 value: c.id_cliente,
-                label: c.nombre,
+                label: `${c.nombre}${c.telefono ? ` — ${c.telefono}` : ''}`,
               }))}
             />
           </Form.Item>
