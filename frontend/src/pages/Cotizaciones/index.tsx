@@ -35,6 +35,7 @@ export default function CotizacionesPage() {
   const [editLineas, setEditLineas] = useState<Linea[]>([]);
   const [editIdCliente, setEditIdCliente] = useState<number | undefined>(undefined);
   const [editBusqueda, setEditBusqueda] = useState('');
+  const [editProductoModalOpen, setEditProductoModalOpen] = useState(false);
   const qc = useQueryClient();
 
   const { data: cotizacionesRes, isLoading } = useQuery({
@@ -239,9 +240,9 @@ export default function CotizacionesPage() {
         />
       </Modal>
 
-      <Modal title="Editar cotización" open={editModalOpen} onCancel={() => { setEditModalOpen(false); setEditingCotizacion(null); setEditLineas([]); setEditIdCliente(undefined); setEditBusqueda(''); }} footer={null} width={600}>
+      <Modal title="Editar cotización" open={editModalOpen} onCancel={() => { setEditModalOpen(false); setEditingCotizacion(null); setEditLineas([]); setEditIdCliente(undefined); setEditBusqueda(''); setEditProductoModalOpen(false); }} footer={null} width={600}>
         <Select allowClear showSearch placeholder="Cliente (opcional)" style={{ width: '100%', marginBottom: 12 }} value={editIdCliente} onChange={setEditIdCliente} optionFilterProp="label" options={(clientesRes?.data ?? []).map((c: any) => ({ value: c.id_cliente, label: c.nombre }))} />
-        <Button icon={<PlusOutlined />} onClick={() => setEditBusqueda('')} block style={{ marginBottom: 12 }}>Agregar producto</Button>
+        <Button icon={<PlusOutlined />} onClick={() => setEditProductoModalOpen(true)} block style={{ marginBottom: 12 }}>Agregar producto</Button>
         <Divider />
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
@@ -270,7 +271,7 @@ export default function CotizacionesPage() {
         )}
       </Modal>
 
-      <Modal title="Seleccionar producto para editar" open={editBusqueda !== '' || editModalOpen} onCancel={() => setEditBusqueda('')} footer={null} width={500} style={{ top: 100 }}>
+      <Modal title="Seleccionar producto para editar" open={editProductoModalOpen} onCancel={() => { setEditProductoModalOpen(false); setEditBusqueda(''); }} footer={null} width={500} style={{ top: 100 }}>
         <Input.Search placeholder="Buscar producto por nombre..." allowClear value={editBusqueda} onChange={(e) => setEditBusqueda(e.target.value)} style={{ marginBottom: 12 }} />
         <List
           dataSource={editProductos}
