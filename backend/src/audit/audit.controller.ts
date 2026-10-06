@@ -17,13 +17,19 @@ export class AuditController {
   constructor(private auditService: AuditService) {}
 
   /**
-   * Obtiene todos los logs de auditoría con paginación.
+   * Obtiene todos los logs de auditoría con paginación y filtros opcionales.
+   * @param fechaDesde - Fecha inicio (ISO string)
+   * @param fechaHasta - Fecha fin (ISO string)
    * @param pagination - Parámetros de paginación
    * @returns Resultado paginado con logs de auditoría
    */
   @Get()
-  async findAll(@Query() pagination: PaginationDto) {
-    const result = await this.auditService.findAll(pagination);
+  async findAll(
+    @Query('fechaDesde') fechaDesde?: string,
+    @Query('fechaHasta') fechaHasta?: string,
+    @Query() pagination?: PaginationDto,
+  ) {
+    const result = await this.auditService.findAll(pagination, fechaDesde, fechaHasta);
     return { success: true, ...result };
   }
 }

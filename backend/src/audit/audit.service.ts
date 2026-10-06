@@ -46,12 +46,24 @@ export class AuditService {
   }
 
   /**
-   * Obtiene todos los logs de auditoría con paginación.
+   * Obtiene todos los logs de auditoría con paginación y filtro opcional por fecha.
    * @param pagination - Parámetros de paginación
+   * @param fechaDesde - Fecha inicio (ISO string)
+   * @param fechaHasta - Fecha fin (ISO string)
    * @returns Resultado paginado con logs de auditoría
    */
-  async findAll(pagination: PaginationDto) {
+  async findAll(pagination: PaginationDto, fechaDesde?: string, fechaHasta?: string) {
+    const where = fechaDesde || fechaHasta
+      ? {
+          created_at: {
+            ...(fechaDesde && { gte: new Date(fechaDesde) }),
+            ...(fechaHasta && { lte: new Date(fechaHasta) }),
+          },
+        }
+      : undefined;
+
     return paginate(this.prisma.auditLog, pagination, {
+      where,
       orderBy: { created_at: 'desc' },
     });
   }
