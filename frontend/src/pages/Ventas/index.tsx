@@ -5,7 +5,7 @@
  * recibos en formato PDF o impresión.
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Fragment } from 'react';
 import { Table, Button, Select, InputNumber, Card, Space, Typography, Tag, Divider, Row, Col, Modal, List, Popconfirm, Descriptions, Input, Alert } from 'antd';
 import { ShoppingCartOutlined, DeleteOutlined, PlusOutlined, StopOutlined, FileTextOutlined, PrinterOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { useVentas } from './useVentas';
@@ -77,33 +77,42 @@ export default function VentasPage() {
                   onSearch={(value) => setClienteSearch(value)}
                   style={{ width: '100%' }}
                   enterButton
+                  size="large"
                 />
                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>
                   Escribe el número de teléfono y presiona Enter para buscar
                 </Typography.Text>
                 {clienteSearch && (
-                  <Space direction="vertical" style={{ width: '100%' }}>
+                  <Fragment>
                     {clientesPorTelefono.length === 0 && (
-                      <Alert type="warning" message="No se encontró cliente con ese teléfono" style={{ width: '100%' }} />
+                      <Alert className={`${styles.clientAlert}`} type="warning" message="No se encontró cliente con ese teléfono" style={{ width: '100%' }} showIcon />
                     )}
                     {clientesPorTelefono.length > 1 && (
-                      <Alert type="info" message={`Se encontraron ${clientesPorTelefono.length} clientes. Refina la búsqueda.`} style={{ width: '100%' }} />
+                      <Alert className={`${styles.clientAlert}`} type="info" message={`Se encontraron ${clientesPorTelefono.length} clientes. Refina la búsqueda.`} style={{ width: '100%' }} showIcon />
                     )}
                     {clienteUnico && (
-                      <div style={{ padding: 12, background: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: 6, width: '100%' }}>
-                        <Typography.Text strong>Cliente seleccionado:</Typography.Text>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-                          <span>
-                            {clienteUnico.nombre}
-                            {clienteUnico.telefono && <span style={{ marginLeft: 8, color: '#666' }}>— {clienteUnico.telefono}</span>}
-                          </span>
-                          <Button size="small" danger onClick={() => { setIdCliente(undefined); setClienteSearch(''); }}>Quitar</Button>
+                      <div className={`${styles.clientCard}`}>
+                        <div className={`${styles.clientCardAccent}`} />
+                        <div className={`${styles.clientCardHeader}`}>
+                          <span className={`${styles.clientCardDot}`} />
+                          <span className={`${styles.clientCardLabel}`}>Cliente seleccionado</span>
+                        </div>
+                        <div>
+                          <div className={`${styles.clientCardName}`}>{clienteUnico.nombre}</div>
+                          {clienteUnico.telefono && (
+                            <div className={`${styles.clientCardPhone}`}>— {clienteUnico.telefono}</div>
+                          )}
+                        </div>
+                        <div className={`${styles.clientCardActions}`}>
+                          <Button size="small" danger onClick={() => { setIdCliente(undefined); setClienteSearch(''); }}>
+                            Quitar cliente
+                          </Button>
                         </div>
                       </div>
                     )}
-                  </Space>
+                  </Fragment>
                 )}
-                <Button icon={<PlusOutlined />} onClick={() => setModalOpen(true)} block>
+                <Button icon={<PlusOutlined />} onClick={() => setModalOpen(true)} block size="large">
                   Agregar producto
                 </Button>
               </Space>
