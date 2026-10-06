@@ -3,7 +3,7 @@
  * Define los parámetros de consulta para paginación y búsqueda,
  * así como la interfaz genérica para resultados paginados.
  */
-import { IsOptional, IsInt, IsString, Min, Max, MaxLength } from 'class-validator';
+import { IsOptional, IsInt, IsString, Min, Max, MaxLength, IsDateString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
@@ -37,6 +37,16 @@ export class PaginationDto {
   @Min(1, { message: 'ID de producto inválido' })
   @Type(() => Number)
   producto?: number;
+
+  /** Fecha inicio para filtrar (formato ISO: YYYY-MM-DD) */
+  @IsOptional()
+  @IsDateString()
+  fechaDesde?: string;
+
+  /** Fecha fin para filtrar (formato ISO: YYYY-MM-DD) */
+  @IsOptional()
+  @IsDateString()
+  fechaHasta?: string;
 }
 
 /**
