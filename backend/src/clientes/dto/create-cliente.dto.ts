@@ -1,9 +1,8 @@
 /**
  * @fileoverview DTO para la creación de un nuevo cliente.
- * Valida que el nombre sea obligatorio y que email, teléfono
- * y dirección sean opcionales.
+ * Valida que todos los campos sean obligatorios y cumplan formato estricto.
  */
-import { IsString, IsEmail, IsOptional, MaxLength, MinLength, Matches } from 'class-validator';
+import { IsString, IsEmail, MaxLength, MinLength, Matches } from 'class-validator';
 
 export class CreateClienteDto {
   /** Nombre completo del cliente (máximo 200 caracteres) */
@@ -13,26 +12,28 @@ export class CreateClienteDto {
   @Matches(/^[a-zA-ZáéíóúñüÁÉÍÓÚÑÜ\s\-']+$/, {
     message: 'El nombre solo debe contener letras, espacios, guiones y apóstrofes',
   })
+  @Matches(/\S/, { message: 'El nombre no puede estar vacío ni contener solo espacios' })
   nombre: string;
 
-  /** Email del cliente (opcional) */
-  @IsOptional()
+  /** Email del cliente (obligatorio) */
   @IsEmail({}, { message: 'Email no válido' })
+  @MaxLength(100)
   @Matches(/^\S+$/, { message: 'El email no debe contener espacios' })
-  email?: string;
+  email: string;
 
-  /** Número de teléfono (opcional, máximo 20 caracteres) */
-  @IsOptional()
+  /** Número de teléfono (obligatorio, exactamente 10 dígitos numéricos) */
   @IsString()
-  @MaxLength(20)
-  @Matches(/^[0-9\s\-\+\(\)]+$/, {
-    message: 'El teléfono solo debe contener números, espacios, guiones, paréntesis y +',
+  @MinLength(10)
+  @MaxLength(10)
+  @Matches(/^[0-9]{10}$/, {
+    message: 'El teléfono debe tener exactamente 10 dígitos numéricos',
   })
-  telefono?: string;
+  telefono: string;
 
-  /** Dirección del cliente (opcional, máximo 300 caracteres) */
-  @IsOptional()
+  /** Dirección del cliente (obligatoria, máximo 300 caracteres) */
   @IsString()
   @MaxLength(300)
-  direccion?: string;
+  @MinLength(1)
+  @Matches(/\S/, { message: 'La dirección no puede estar vacía ni contener solo espacios' })
+  direccion: string;
 }

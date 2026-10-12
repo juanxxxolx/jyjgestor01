@@ -114,29 +114,33 @@ export default function ClientesPage() {
         destroyOnClose
       >
         <Form form={form} layout="vertical" onFinish={onFinish}>
-          <Form.Item name="nombre" label="Nombre" rules={[
-            { required: true, message: 'Nombre requerido' },
+          <Form.Item name="nombre" label="Nombre *" rules={[
+            { required: true, message: 'El nombre es obligatorio' },
             { max: 200, message: 'Máximo 200 caracteres' },
-            { pattern: /^[a-zA-ZáéíóúñüÁÉÍÓÚÑÜ\s\-']+$/, message: 'Solo se permiten letras, espacios, guiones y apóstrofes' }
+            { pattern: /^[a-zA-ZáéíóúñüÁÉÍÓÚÑÜ\s\-']+$/, message: 'Solo se permiten letras, espacios, guiones y apóstrofes' },
+            { validator: (_: any, value: string) => { if (!value || !value.trim()) return Promise.reject(new Error('El nombre no puede estar vacío ni contener solo espacios')); return Promise.resolve(); } }
           ]}>
             <Input maxLength={200} />
           </Form.Item>
-          <Form.Item name="email" label="Email" rules={[
+          <Form.Item name="email" label="Email *" rules={[
+            { required: true, message: 'El email es obligatorio' },
             { type: 'email', message: 'Email no válido' },
             { max: 100, message: 'Máximo 100 caracteres' },
             { pattern: /^\S+$/, message: 'El email no debe contener espacios' }
           ]}>
             <Input maxLength={100} />
           </Form.Item>
-          <Form.Item name="telefono" label="Teléfono" rules={[
-            { max: 20, message: 'Máximo 20 caracteres' },
-            { pattern: /^[0-9\s\-\+\(\)]+$/, message: 'Solo se permiten números, espacios, guiones, paréntesis y +' }
+          <Form.Item name="telefono" label="Teléfono *" rules={[
+            { required: true, message: 'El teléfono es obligatorio' },
+            { min: 10, max: 10, message: 'El teléfono debe tener exactamente 10 dígitos' },
+            { pattern: /^[0-9]{10}$/, message: 'El teléfono debe contener solo 10 dígitos numéricos' }
           ]}>
-            <Input maxLength={20} />
+            <Input maxLength={10} placeholder="Ej: 3104567890" />
           </Form.Item>
-          <Form.Item name="direccion" label="Dirección" rules={[
+          <Form.Item name="direccion" label="Dirección *" rules={[
+            { required: true, message: 'La dirección es obligatoria' },
             { max: 300, message: 'Máximo 300 caracteres' },
-            { pattern: /^[a-zA-Z0-9áéíóúñüÁÉÍÓÚÑÜ\s\-\.#]+$/, message: 'Caracteres no permitidos en la dirección' }
+            { validator: (_: any, value: string) => { if (!value || !value.trim()) return Promise.reject(new Error('La dirección no puede estar vacía ni contener solo espacios')); return Promise.resolve(); } }
           ]}>
             <Input.TextArea rows={2} maxLength={300} />
           </Form.Item>
