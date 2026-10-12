@@ -109,6 +109,7 @@ export class ClientesService {
 
   /**
    * Elimina un cliente del sistema y registra el evento en auditoría.
+   * Elimina en cascada los registros relacionados (abonos, ventas, cotizaciones, movimientos).
    *
    * @param id - ID del cliente
    * @param userId - ID del usuario que realiza la eliminación
@@ -119,7 +120,28 @@ export class ClientesService {
    */
   async remove(id: number, userId?: number, userName?: string, ip?: string) {
     const cliente = await this.findOne(id);
-    await this.prisma.cliente.delete({ where: { id_cliente: id } });
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.abono.deleteMany({ where: { id_cliente: id } });
+
+      const ventas = await tx.venta.findMany({ where: { id_cliente: id }, select: { id_venta: true } });
+      const ventaIds = ventas.map(v => v.id_venta);
+      if (ventaIds.length > 0) {
+        await tx.detalleVenta.deleteMany({ where: { id_venta: { in: ventaIds } } });
+        await tx.venta.deleteMany({ where: { id_venta: { in: ventaIds } } });
+      }
+
+      const cotizaciones = await tx.cotizacion.findMany({ where: { id_cliente: id }, select: { id_cotizacion: true } });
+      const cotizacionIds = cotizaciones.map(c => c.id_cotizacion);
+      if (cotizacionIds.length > 0) {
+        await tx.detalleCotizacion.deleteMany({ where: { id_cotizacion: { in: cotizacionIds } } });
+        await tx.cotizacion.deleteMany({ where: { id_cotizacion: { in: cotizacionIds } } });
+      }
+
+      await tx.movimiento.deleteMany({ where: { id_cliente: id } });
+
+      await tx.cliente.delete({ where: { id_cliente: id } });
+    });
 
     this.audit.log({
       userId, userName, ip,
