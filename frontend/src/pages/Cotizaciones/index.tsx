@@ -12,6 +12,7 @@ import { cotizacionesApi } from '../../api/cotizaciones.api';
 import { productosApi } from '../../api/productos.api';
 import { clientesApi } from '../../api/clientes.api';
 import type { Producto } from '../../types';
+import { formatCOP } from '../../utils/format';
 import styles from './styles.module.css';
 
 /** Representa una línea de producto dentro de la cotización. */
@@ -191,8 +192,8 @@ export default function CotizacionesPage() {
                   <tr key={l.key}>
                     <td style={{ padding: 8 }}>{l.nombre}</td>
                     <td><InputNumber min={1} max={999} value={l.cantidad} onChange={(v) => cambiarCantidad(l.key, v ?? 1)} style={{ width: 70 }} size="small" /></td>
-                    <td>${l.precio_unitario.toLocaleString('es-CO')}</td>
-                    <td><strong>${l.subtotal.toLocaleString('es-CO')}</strong></td>
+                    <td>{formatCOP(l.precio_unitario)}</td>
+                    <td><strong>{formatCOP(l.subtotal)}</strong></td>
                     <td><Button size="small" danger icon={<DeleteOutlined />} onClick={() => quitarLinea(l.key)} /></td>
                   </tr>
                 ))}
@@ -202,7 +203,7 @@ export default function CotizacionesPage() {
               <>
                 <Divider />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography.Title level={3}>Total: ${total.toLocaleString('es-CO')}</Typography.Title>
+                  <Typography.Title level={3}>Total: {formatCOP(total)}</Typography.Title>
                   <Button type="primary" size="large" icon={<ShoppingCartOutlined />} onClick={crearCotizacion} loading={createMutation.isPending}>Crear cotización</Button>
                 </div>
               </>
@@ -223,7 +224,7 @@ export default function CotizacionesPage() {
               columns={[
                 { title: '#', dataIndex: 'id_cotizacion', width: 50, fixed: 'left' },
                 { title: 'Cliente', dataIndex: ['cliente', 'nombre'], width: 120, render: (v: string) => v || <Tag>Mostrador</Tag> },
-                { title: 'Total', dataIndex: 'total', width: 100, render: (v: number) => `$${Number(v).toLocaleString('es-CO')}` },
+                { title: 'Total', dataIndex: 'total', width: 100, render: (v: number) => formatCOP(v) },
                 { title: 'Estado', dataIndex: 'estado', width: 110, render: (v: string) => <Tag color={v === 'PENDIENTE' ? 'orange' : 'green'}>{v === 'PENDIENTE' ? 'Pendiente' : 'Convertida'}</Tag> },
                 { title: 'Fecha', dataIndex: 'created_at', width: 150, render: (v: string) => new Date(v).toLocaleString('es-CO') },
                 {
@@ -255,7 +256,7 @@ export default function CotizacionesPage() {
           locale={{ emptyText: busqueda ? 'Sin resultados' : 'No hay productos disponibles' }}
           renderItem={(p: Producto) => (
             <List.Item actions={[<Button type="link" onClick={() => agregarProducto(p)} disabled={p.stock <= 0}>Agregar</Button>]}>
-              <List.Item.Meta title={p.nombre} description={`Stock: ${p.stock} — Precio: $${Number(p.precio_venta).toLocaleString('es-CO')}`} />
+              <List.Item.Meta title={p.nombre} description={`Stock: ${p.stock} — Precio: ${formatCOP(p.precio_venta)}`} />
             </List.Item>
           )}
         />
@@ -287,8 +288,8 @@ export default function CotizacionesPage() {
               <tr key={l.key}>
                 <td style={{ padding: 8 }}>{l.nombre}</td>
                 <td><InputNumber min={1} max={999} value={l.cantidad} onChange={(v) => cambiarCantidadEdit(l.key, v ?? 1)} style={{ width: 70 }} size="small" /></td>
-                <td>${l.precio_unitario.toLocaleString('es-CO')}</td>
-                <td><strong>${l.subtotal.toLocaleString('es-CO')}</strong></td>
+                <td>{formatCOP(l.precio_unitario)}</td>
+                <td><strong>{formatCOP(l.subtotal)}</strong></td>
                 <td><Button size="small" danger icon={<DeleteOutlined />} onClick={() => quitarLineaEdit(l.key)} /></td>
               </tr>
             ))}
@@ -298,7 +299,7 @@ export default function CotizacionesPage() {
           <>
             <Divider />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-              <Typography.Title level={3}>Total: ${editTotal.toLocaleString('es-CO')}</Typography.Title>
+              <Typography.Title level={3}>Total: {formatCOP(editTotal)}</Typography.Title>
               <Button type="primary" size="large" icon={<ShoppingCartOutlined />} onClick={guardarEdicion} loading={updateMutation.isPending}>Guardar cambios</Button>
             </div>
           </>
@@ -312,7 +313,7 @@ export default function CotizacionesPage() {
           locale={{ emptyText: editBusqueda ? 'Sin resultados' : 'No hay productos disponibles' }}
           renderItem={(p: Producto) => (
             <List.Item actions={[<Button type="link" onClick={() => agregarProductoEdit(p)}>Agregar</Button>]}>
-              <List.Item.Meta title={p.nombre} description={`Stock: ${p.stock} — Precio: $${Number(p.precio_venta).toLocaleString('es-CO')}`} />
+              <List.Item.Meta title={p.nombre} description={`Stock: ${p.stock} — Precio: ${formatCOP(p.precio_venta)}`} />
             </List.Item>
           )}
         />

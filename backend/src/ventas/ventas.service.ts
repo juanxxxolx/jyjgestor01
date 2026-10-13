@@ -72,7 +72,7 @@ export class VentasService {
           },
         },
         include: {
-          detalle: { include: { producto: { select: { id_producto: true, nombre: true, referencia: true } } } },
+          detalle: { include: { producto: { select: { id_producto: true, nombre: true, codigo: true } } } },
           cliente: { select: { id_cliente: true, nombre: true } },
           usuario: { select: { id_usuario: true, nombre: true } },
         },
@@ -102,7 +102,7 @@ export class VentasService {
       userId, userName, ip,
       action: 'Registró venta',
       entity: 'Venta', entityId: venta.id_venta,
-      detail: `Venta #${venta.id_venta} — $${Number(total).toLocaleString('es-CO')} — ${detalleData.length} producto(s)`,
+      detail: `Venta #${venta.id_venta} — ${Number(total).toLocaleString('es-CO')} — ${detalleData.length} producto(s)`,
     });
 
     return { success: true, data: venta };
@@ -116,7 +116,7 @@ export class VentasService {
   async findAll(pagination: PaginationDto) {
     const result = await paginate(this.prisma.venta, pagination, {
       include: {
-        detalle: { include: { producto: { select: { id_producto: true, nombre: true, referencia: true } } } },
+        detalle: { include: { producto: { select: { id_producto: true, nombre: true, codigo: true } } } },
         cliente: { select: { id_cliente: true, nombre: true } },
         usuario: { select: { id_usuario: true, nombre: true } },
       },
@@ -190,14 +190,14 @@ export class VentasService {
         const y = doc.y;
         doc.text(d.producto?.nombre || `#${d.id_producto}`, colX[0], y, { width: colX[1] - colX[0] });
         doc.text(String(d.cantidad), colX[1], y, { width: colX[2] - colX[1], align: 'center' });
-        doc.text(`$${Number(d.precio_unitario).toLocaleString('es-CO')}`, colX[2], y, { width: colX[3] - colX[2], align: 'right' });
-        doc.text(`$${Number(d.subtotal).toLocaleString('es-CO')}`, colX[3], y, { width: colX[4] - colX[3], align: 'right' });
+        doc.text(`${Number(d.precio_unitario).toLocaleString('es-CO')}`, colX[2], y, { width: colX[3] - colX[2], align: 'right' });
+        doc.text(`${Number(d.subtotal).toLocaleString('es-CO')}`, colX[3], y, { width: colX[4] - colX[3], align: 'right' });
         doc.moveDown(0.3);
       });
 
       doc.moveDown(1);
       doc.fontSize(14).font('Helvetica-Bold');
-      doc.text(`Total: $${Number(venta.total).toLocaleString('es-CO')}`, { align: 'right' });
+      doc.text(`Total: ${Number(venta.total).toLocaleString('es-CO')}`, { align: 'right' });
 
       doc.end();
     });
@@ -248,7 +248,7 @@ export class VentasService {
       userId, userName, ip,
       action: 'Anuló venta',
       entity: 'Venta', entityId: id,
-      detail: `Venta #${id} anulada — $${Number(venta.total).toLocaleString('es-CO')}`,
+      detail: `Venta #${id} anulada — ${Number(venta.total).toLocaleString('es-CO')}`,
     });
 
     return { success: true, message: `Venta #${id} anulada, stock restituido` };

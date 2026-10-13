@@ -10,6 +10,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined, HistoryOutlined, UploadOutl
 import type { Producto } from '../../types';
 import { useProductos } from './useProductos';
 import { downloadExport } from '../../utils/download';
+import { formatCOP } from '../../utils/format';
 import styles from './styles.module.css';
 
 /**
@@ -17,7 +18,7 @@ import styles from './styles.module.css';
  *
  * @component
  * @description Renderiza el buscador, una alerta de stock bajo, la tabla de
- * productos con columnas de imagen, nombre, referencia, categoría, precio,
+ * productos con columnas de imagen, nombre, código, categoría, precio,
  * stock (con color según mínimo), y acciones de editar/subir imagen/eliminar
  * (solo admin). Incluye un modal para crear/editar producto y otro para
  * visualizar el historial de precios.
@@ -64,7 +65,7 @@ export default function ProductosPage() {
         />
       )}
       <Input.Search
-        placeholder="Buscar por nombre o referencia"
+        placeholder="Buscar por nombre o código"
         allowClear
         value={search}
         onChange={(e) => onSearch(e.target.value)}
@@ -97,13 +98,13 @@ export default function ProductosPage() {
               ),
           },
           { title: 'Nombre', dataIndex: 'nombre', key: 'nombre' },
-          { title: 'Referencia', dataIndex: 'referencia', key: 'referencia' },
+          { title: 'Código', dataIndex: 'codigo', key: 'codigo' },
           { title: 'Categoría', dataIndex: ['categoria', 'nombre_categoria'], key: 'categoria' },
           {
             title: 'Precio',
             dataIndex: 'precio_venta',
             key: 'precio',
-            render: (v: number) => `$${Number(v).toLocaleString('es-CO')}`,
+            render: (v: number) => formatCOP(v),
           },
           {
             title: 'Stock',
@@ -173,13 +174,13 @@ export default function ProductosPage() {
           ]}>
             <Input maxLength={200} />
           </Form.Item>
-          <Form.Item name="referencia" label="Referencia" rules={[
-            { required: true, message: 'Referencia requerida' },
+          <Form.Item name="codigo" label="Código" rules={[
+            { required: true, message: 'Código requerido' },
             { min: 2, message: 'Mínimo 2 caracteres' },
-            { max: 100, message: 'Máximo 100 caracteres' },
-            { pattern: /^[a-zA-Z0-9áéíóúñüÁÉÍÓÚÑÜ\s\-\.]+$/, message: 'La referencia solo debe contener letras, números, espacios, guiones y puntos' }
+            { max: 50, message: 'Máximo 50 caracteres' },
+            { pattern: /^[a-zA-Z0-9áéíóúñüÁÉÍÓÚÑÜ\s\-\.]+$/, message: 'El código solo debe contener letras, números, espacios, guiones y puntos' }
           ]}>
-            <Input maxLength={100} />
+            <Input maxLength={50} />
           </Form.Item>
           <Form.Item name="precio_venta" label="Precio de venta" rules={[{ required: true }]}>
             <InputNumber min={0} max={999999999} className={styles.formInput} />
@@ -244,13 +245,13 @@ export default function ProductosPage() {
               title: 'Precio anterior',
               dataIndex: 'precio_anterior',
               key: 'precio_anterior',
-              render: (v: number) => `$${Number(v).toLocaleString('es-CO')}`,
+              render: (v: number) => formatCOP(v),
             },
             {
               title: 'Precio nuevo',
               dataIndex: 'precio_nuevo',
               key: 'precio_nuevo',
-              render: (v: number) => `$${Number(v).toLocaleString('es-CO')}`,
+              render: (v: number) => formatCOP(v),
             },
           ]}
         />

@@ -1,10 +1,10 @@
 /**
  * @fileoverview DTO para la creación de un nuevo producto.
- * Valida nombre, referencia única, precio de venta (con 2 decimales),
+ * Valida nombre, referencia única, precio de venta (entero en COP),
  * stock, stock mínimo, categoría opcional e imagen opcional.
  */
 import {
-  IsString, IsNumber, IsOptional, IsInt, Min, Max, MaxLength, MinLength, Matches,
+  IsString, IsInt, IsOptional, Min, Max, MaxLength, MinLength, Matches,
   Validate, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -29,19 +29,19 @@ export class CreateProductoDto {
   @MinLength(1)
   nombre: string;
 
-  /** Código de referencia único del producto (máximo 100 caracteres) */
+  /** Código único del producto (máximo 50 caracteres) */
   @IsString()
-  @MaxLength(100)
+  @MaxLength(50)
   @MinLength(1)
   @Matches(/^[a-zA-Z0-9áéíóúñüÁÉÍÓÚÑÜ\s\-\.]+$/, {
-    message: 'La referencia solo debe contener letras, números, espacios, guiones y puntos',
+    message: 'El código solo debe contener letras, números, espacios, guiones y puntos',
   })
-  referencia: string;
+  codigo: string;
 
-  /** Precio de venta con hasta 2 decimales */
-  @IsNumber({ maxDecimalPlaces: 2 })
-  @Min(0)
-  @Max(999999999, { message: 'Precio excesivo' })
+  /** Precio de venta en Pesos Colombianos (entero, sin decimales) */
+  @IsInt({ message: 'El precio debe ser un número entero (sin decimales)' })
+  @Min(0, { message: 'El precio no puede ser negativo' })
+  @Max(9999999999, { message: 'Precio excesivo' })
   @Type(() => Number)
   precio_venta: number;
 

@@ -11,6 +11,7 @@ import { ShoppingCartOutlined, DeleteOutlined, PlusOutlined, StopOutlined, FileT
 import { useVentas } from './useVentas';
 import { ventasApi } from '../../api/ventas.api';
 import type { Producto } from '../../types';
+import { formatCOP } from '../../utils/format';
 import styles from './styles.module.css';
 
 /**
@@ -138,8 +139,8 @@ export default function VentasPage() {
                           size="small"
                         />
                       </td>
-                      <td>${l.precio_unitario.toLocaleString('es-CO')}</td>
-                      <td><strong>${l.subtotal.toLocaleString('es-CO')}</strong></td>
+                      <td>{formatCOP(l.precio_unitario)}</td>
+                      <td><strong>{formatCOP(l.subtotal)}</strong></td>
                       <td>
                         <Button size="small" danger icon={<DeleteOutlined />} onClick={() => quitarLinea(l.key)} />
                       </td>
@@ -153,7 +154,7 @@ export default function VentasPage() {
               <>
                 <Divider />
                 <div className={styles.totalRow}>
-                  <Typography.Title level={3}>Total: ${total.toLocaleString('es-CO')}</Typography.Title>
+                  <Typography.Title level={3}>Total: {formatCOP(total)}</Typography.Title>
                   <Button
                     type="primary"
                     size="large"
@@ -193,13 +194,13 @@ export default function VentasPage() {
                 width: 130,
                 render: (v: string) => v || <Tag>Mostrador</Tag>,
               },
-              {
-                title: 'Total',
-                dataIndex: 'total',
-                key: 'total',
-                width: 100,
-                render: (v: number) => `$${Number(v).toLocaleString('es-CO')}`,
-              },
+{
+  title: 'Total',
+  dataIndex: 'total',
+  key: 'total',
+  width: 100,
+  render: (v: number) => formatCOP(v),
+},
               {
                 title: 'Estado',
                 dataIndex: 'estado',
@@ -269,7 +270,7 @@ export default function VentasPage() {
             >
               <List.Item.Meta
                 title={p.nombre}
-                description={`Stock: ${p.stock} — Precio: $${Number(p.precio_venta).toLocaleString('es-CO')}`}
+                description={`Stock: ${p.stock} — Precio: ${formatCOP(p.precio_venta)}`}
               />
             </List.Item>
           )}
@@ -323,15 +324,15 @@ export default function VentasPage() {
                   <tr key={i} style={{ borderBottom: '1px solid #ddd' }}>
                     <td style={{ padding: 4 }}>{d.producto?.nombre || `#${d.id_producto}`}</td>
                     <td style={{ textAlign: 'center', padding: 4 }}>{d.cantidad}</td>
-                    <td style={{ textAlign: 'right', padding: 4 }}>${Number(d.precio_unitario).toLocaleString('es-CO')}</td>
-                    <td style={{ textAlign: 'right', padding: 4 }}>${Number(d.subtotal).toLocaleString('es-CO')}</td>
+                    <td style={{ textAlign: 'right', padding: 4 }}>{formatCOP(d.precio_unitario)}</td>
+                    <td style={{ textAlign: 'right', padding: 4 }}>{formatCOP(d.subtotal)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
             <Divider />
             <Typography.Title level={3} style={{ textAlign: 'right' }}>
-              Total: ${Number(reciboData.data.total).toLocaleString('es-CO')}
+              Total: {formatCOP(reciboData.data.total)}
             </Typography.Title>
           </div>
         )}

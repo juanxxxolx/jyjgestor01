@@ -51,7 +51,7 @@ export default function ExistenciasPage() {
         value={productoFiltro}
         onChange={(v) => { setProductoFiltro(v); setPage(1); }}
         optionFilterProp="label"
-        options={(productosRes?.data ?? []).map((p: any) => ({ value: p.id_producto, label: `${p.nombre} (${p.referencia})` }))}
+        options={(productosRes?.data ?? []).map((p: any) => ({ value: p.id_producto, label: `${p.nombre} (${p.codigo})` }))}
       />
 
       <Table
@@ -69,7 +69,7 @@ export default function ExistenciasPage() {
         scroll={{ x: 'max-content' }}
         columns={[
           { title: 'Producto', dataIndex: ['producto', 'nombre'], key: 'producto' },
-          { title: 'Referencia', dataIndex: ['producto', 'referencia'], key: 'referencia' },
+          { title: 'Código', dataIndex: ['producto', 'codigo'], key: 'codigo' },
           {
             title: 'Tipo',
             dataIndex: 'tipo_movimiento',
@@ -104,7 +104,7 @@ export default function ExistenciasPage() {
               optionFilterProp="label"
               options={(productosRes?.data ?? []).map((p: any) => ({
                 value: p.id_producto,
-                label: `${p.nombre} (${p.referencia}) — Stock: ${p.stock}`,
+                label: `${p.nombre} (${p.codigo}) — Stock: ${p.stock}`,
               }))}
             />
           </Form.Item>

@@ -28,7 +28,7 @@ export class ReportesService {
     const ventas = await this.prisma.venta.findMany({
       where,
       include: {
-        detalle: { include: { producto: { select: { nombre: true, referencia: true } } } },
+        detalle: { include: { producto: { select: { nombre: true, codigo: true } } } },
         cliente: { select: { nombre: true } },
         usuario: { select: { nombre: true } },
       },
@@ -61,12 +61,12 @@ export class ReportesService {
 
     const detalles = await this.prisma.detalleVenta.findMany({
       where: { venta: where },
-      include: { producto: { select: { nombre: true, referencia: true, precio_venta: true } } },
+      include: { producto: { select: { nombre: true, codigo: true, precio_venta: true } } },
     });
 
-    const agg: Record<number, { nombre: string; referencia: string; cantidad: number; total: number }> = {};
+    const agg: Record<number, { nombre: string; codigo: string; cantidad: number; total: number }> = {};
     for (const d of detalles) {
-      if (!agg[d.id_producto]) agg[d.id_producto] = { nombre: d.producto.nombre, referencia: d.producto.referencia, cantidad: 0, total: 0 };
+      if (!agg[d.id_producto]) agg[d.id_producto] = { nombre: d.producto.nombre, codigo: d.producto.codigo, cantidad: 0, total: 0 };
       agg[d.id_producto].cantidad += d.cantidad;
       agg[d.id_producto].total += Number(d.subtotal);
     }

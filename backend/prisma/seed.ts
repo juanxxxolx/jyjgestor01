@@ -29,16 +29,16 @@ async function main() {
   }
 
   const productosData = [
-    { nombre: 'Smartphone X200', referencia: 'ELE-001', precio_venta: 899.99, stock: 25, stock_minimo: 5, id_categoria: 1 },
-    { nombre: 'Auriculares Bluetooth', referencia: 'ELE-002', precio_venta: 49.99, stock: 3, stock_minimo: 10, id_categoria: 1 },
-    { nombre: 'Cargador USB-C 65W', referencia: 'ELE-003', precio_venta: 29.99, stock: 50, stock_minimo: 10, id_categoria: 1 },
-    { nombre: 'Camiseta Algodón M', referencia: 'ROP-001', precio_venta: 19.99, stock: 100, stock_minimo: 20, id_categoria: 2 },
-    { nombre: 'Jeans Clásico Azul', referencia: 'ROP-002', precio_venta: 39.99, stock: 45, stock_minimo: 10, id_categoria: 2 },
-    { nombre: 'Lámpara LED Escritorio', referencia: 'HOG-001', precio_venta: 34.99, stock: 2, stock_minimo: 8, id_categoria: 3 },
-    { nombre: 'Set Sartenes Antiadherentes', referencia: 'HOG-002', precio_venta: 59.99, stock: 15, stock_minimo: 5, id_categoria: 3 },
-    { nombre: 'Pelota Fútbol Profesional', referencia: 'DEP-001', precio_venta: 24.99, stock: 30, stock_minimo: 10, id_categoria: 4 },
-    { nombre: 'Pesa 10kg', referencia: 'DEP-002', precio_venta: 44.99, stock: 0, stock_minimo: 5, id_categoria: 4 },
-    { nombre: 'Café Premium 500g', referencia: 'ALI-001', precio_venta: 12.99, stock: 80, stock_minimo: 20, id_categoria: 5 },
+    { nombre: 'Smartphone X200', codigo: 'ELE-001', precio_venta: 899990, stock: 25, stock_minimo: 5, id_categoria: 1 },
+    { nombre: 'Auriculares Bluetooth', codigo: 'ELE-002', precio_venta: 49990, stock: 3, stock_minimo: 10, id_categoria: 1 },
+    { nombre: 'Cargador USB-C 65W', codigo: 'ELE-003', precio_venta: 29990, stock: 50, stock_minimo: 10, id_categoria: 1 },
+    { nombre: 'Camiseta Algodón M', codigo: 'ROP-001', precio_venta: 19990, stock: 100, stock_minimo: 20, id_categoria: 2 },
+    { nombre: 'Jeans Clásico Azul', codigo: 'ROP-002', precio_venta: 39990, stock: 45, stock_minimo: 10, id_categoria: 2 },
+    { nombre: 'Lámpara LED Escritorio', codigo: 'HOG-001', precio_venta: 34990, stock: 2, stock_minimo: 8, id_categoria: 3 },
+    { nombre: 'Set Sartenes Antiadherentes', codigo: 'HOG-002', precio_venta: 59990, stock: 15, stock_minimo: 5, id_categoria: 3 },
+    { nombre: 'Pelota Fútbol Profesional', codigo: 'DEP-001', precio_venta: 24990, stock: 30, stock_minimo: 10, id_categoria: 4 },
+    { nombre: 'Pesa 10kg', codigo: 'DEP-002', precio_venta: 44990, stock: 0, stock_minimo: 5, id_categoria: 4 },
+    { nombre: 'Café Premium 500g', codigo: 'ALI-001', precio_venta: 12990, stock: 80, stock_minimo: 20, id_categoria: 5 },
   ];
 
   const productos = [];
@@ -88,11 +88,11 @@ async function main() {
     data: {
       id_usuario: admin.id_usuario,
       id_cliente: clientes[0].id_cliente,
-      total: 89.97,
+      total: 89970,
       detalle: {
         create: [
-          { id_producto: productos[3].id_producto, cantidad: 3, precio_unitario: 19.99, subtotal: 59.97 },
-          { id_producto: productos[9].id_producto, cantidad: 2, precio_unitario: 12.99, subtotal: 25.98 },
+          { id_producto: productos[3].id_producto, cantidad: 3, precio_unitario: 19990, subtotal: 59970 },
+          { id_producto: productos[9].id_producto, cantidad: 2, precio_unitario: 12990, subtotal: 25980 },
         ],
       },
     },

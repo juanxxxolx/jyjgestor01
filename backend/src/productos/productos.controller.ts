@@ -42,7 +42,7 @@ export class ProductosController {
       'Productos',
       [
         { header: 'Nombre', key: 'nombre', width: 30 },
-        { header: 'Referencia', key: 'referencia', width: 20 },
+        { header: 'Código', key: 'codigo', width: 20 },
         { header: 'Categoría', key: 'categoria', width: 20 },
         { header: 'Precio', key: 'precio_venta', width: 15 },
         { header: 'Stock', key: 'stock', width: 10 },
@@ -50,7 +50,7 @@ export class ProductosController {
       ],
       data.map((p: any) => ({
         nombre: p.nombre,
-        referencia: p.referencia,
+        codigo: p.codigo,
         categoria: p.categoria?.nombre_categoria ?? '',
         precio_venta: Number(p.precio_venta),
         stock: p.stock,
@@ -80,7 +80,7 @@ export class ProductosController {
    * Obtiene todos los productos con paginación y búsqueda opcional.
    *
    * @param pagination - Parámetros de paginación
-   * @param search - Término de búsqueda (nombre o referencia)
+   * @param search - Término de búsqueda (nombre o código)
    * @returns Lista paginada de productos
    */
   @Get()

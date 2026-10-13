@@ -45,7 +45,7 @@ export interface DetalleCompra {
   cantidad: number;
   costo_unitario: number;
   subtotal: number;
-  producto?: Pick<Producto, 'id_producto' | 'nombre'>;
+  producto?: Pick<Producto, 'id_producto' | 'nombre' | 'codigo'>;
 }
 
 /** Representa una compra realizada a un proveedor. */
@@ -78,7 +78,7 @@ export interface Categoria {
 export interface Producto {
   id_producto: number;
   nombre: string;
-  referencia: string;
+  codigo: string;
   imagen_url?: string;
   precio_venta: number;
   stock: number;
@@ -97,7 +97,7 @@ export interface Movimiento {
   fecha_movimiento: string;
   id_usuario?: number;
   id_cliente?: number;
-  producto?: Pick<Producto, 'id_producto' | 'nombre' | 'referencia'>;
+  producto?: Pick<Producto, 'id_producto' | 'nombre' | 'codigo'>;
   usuario?: { id_usuario: number; nombre: string };
   cliente?: Pick<Cliente, 'id_cliente' | 'nombre'>;
 }
@@ -110,7 +110,7 @@ export interface PrecioHistorico {
   precio_nuevo: number;
   fecha_cambio: string;
   id_usuario?: number;
-  producto?: Pick<Producto, 'id_producto' | 'nombre' | 'referencia'>;
+  producto?: Pick<Producto, 'id_producto' | 'nombre' | 'codigo'>;
 }
 
 /** Respuesta estándar de la API con indicador de éxito. */
@@ -151,7 +151,7 @@ export interface VentaDetalle {
   cantidad: number;
   precio_unitario: number;
   subtotal: number;
-  producto?: Pick<Producto, 'id_producto' | 'nombre' | 'referencia'>;
+  producto?: Pick<Producto, 'id_producto' | 'nombre' | 'codigo'>;
 }
 
 /** Representa una venta o factura emitida. */

@@ -10,6 +10,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, DownloadOut
 import type { Cliente } from '../../types';
 import { useClientes } from './useClientes';
 import { downloadExport } from '../../utils/download';
+import { formatCOP } from '../../utils/format';
 import styles from './styles.module.css';
 
 /**
@@ -83,7 +84,7 @@ export default function ClientesPage() {
               const saldo = Number(v ?? 0);
               return (
                 <Tag color={saldo > 0 ? 'orange' : 'green'}>
-                  ${saldo.toLocaleString('es-CO')}
+                  {formatCOP(saldo)}
                 </Tag>
               );
             },
@@ -155,10 +156,10 @@ export default function ClientesPage() {
         confirmLoading={abonoMutation.isPending}
         destroyOnClose
       >
-        <Typography.Text>Saldo actual: <strong>${Number(abonoCliente?.saldo ?? 0).toLocaleString('es-CO')}</strong></Typography.Text>
+        <Typography.Text>Saldo actual: <strong>{formatCOP(abonoCliente?.saldo ?? 0)}</strong></Typography.Text>
         <Form form={abonoForm} layout="vertical" onFinish={onAbonoFinish} style={{ marginTop: 16 }}>
           <Form.Item name="monto" label="Monto del abono" rules={[{ required: true, message: 'Ingrese el monto' }, { type: 'number', min: 1, message: 'Debe ser mayor a 0' }]}>
-            <InputNumber min={1} max={999999999} prefix="$" style={{ width: '100%' }} />
+            <InputNumber min={1} max={999999999} style={{ width: '100%' }} />
           </Form.Item>
         </Form>
       </Modal>
@@ -187,7 +188,7 @@ export default function ClientesPage() {
               title: 'Monto',
               dataIndex: 'monto',
               key: 'monto',
-              render: (v: number) => `$${Number(v).toLocaleString('es-CO')}`,
+              render: (v: number) => formatCOP(v),
             },
           ]}
         />

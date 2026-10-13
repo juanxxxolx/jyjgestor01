@@ -20,7 +20,7 @@ export class PreciosHistoricosService {
     const historicos = await this.prisma.precioHistorico.findMany({
       where,
       include: {
-        producto: { select: { id_producto: true, nombre: true, referencia: true } },
+        producto: { select: { id_producto: true, nombre: true, codigo: true } },
       },
       orderBy: { fecha_cambio: 'desc' },
       take: 200,

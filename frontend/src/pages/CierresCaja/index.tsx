@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { Table, Button, Card, Typography, Modal, InputNumber, Space, Tag, Descriptions, message } from 'antd';
 import { DollarOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { useCierresCaja } from './useCierresCaja';
+import { formatCOP } from '../../utils/format';
 import styles from './styles.module.css';
 
 /**
@@ -42,13 +43,13 @@ export default function CierresCajaPage() {
   const columns = [
     { title: '#', dataIndex: 'id_cierre', key: 'id_cierre', width: 60 },
     { title: 'Fecha', dataIndex: 'created_at', key: 'created_at', render: (v: string) => new Date(v).toLocaleString('es-CO'), width: 160 },
-    { title: 'Total ventas', dataIndex: 'total_ventas', key: 'total_ventas', render: (v: number) => `$${Number(v).toFixed(2)}`, width: 120 },
-    { title: 'Efectivo declarado', dataIndex: 'efectivo_declarado', key: 'efectivo_declarado', render: (v: number) => `$${Number(v).toFixed(2)}`, width: 150 },
+    { title: 'Total ventas', dataIndex: 'total_ventas', key: 'total_ventas', render: (v: number) => formatCOP(v), width: 120 },
+    { title: 'Efectivo declarado', dataIndex: 'efectivo_declarado', key: 'efectivo_declarado', render: (v: number) => formatCOP(v), width: 150 },
     {
       title: 'Diferencia', dataIndex: 'diferencia', key: 'diferencia',
       render: (v: number) => {
         const val = Number(v);
-        return <Tag color={val === 0 ? 'green' : val > 0 ? 'blue' : 'red'}>{val === 0 ? 'Cero' : val > 0 ? `+$${val.toFixed(2)}` : `-$${Math.abs(val).toFixed(2)}`}</Tag>;
+        return <Tag color={val === 0 ? 'green' : val > 0 ? 'blue' : 'red'}>{val === 0 ? 'Cero' : val > 0 ? `+${formatCOP(val)}` : `-${formatCOP(Math.abs(val))}`}</Tag>;
       },
       width: 120,
     },
@@ -63,13 +64,13 @@ export default function CierresCajaPage() {
       {hoy && (
         <Card title="Estado de hoy" style={{ marginBottom: 16 }}>
           <Descriptions column={{ xs: 1, sm: 2, md: 3 }}>
-            <Descriptions.Item label="Ventas en efectivo hoy">${Number(hoy.total_ventas_hoy).toFixed(2)} ({hoy.cantidad_ventas} ventas)</Descriptions.Item>
+            <Descriptions.Item label="Ventas en efectivo hoy">{formatCOP(hoy.total_ventas_hoy)} ({hoy.cantidad_ventas} ventas)</Descriptions.Item>
             {yaHayCierre ? (
               <>
-                <Descriptions.Item label="Efectivo declarado">${Number(hoy.cierre_hoy.efectivo_declarado).toFixed(2)}</Descriptions.Item>
+                <Descriptions.Item label="Efectivo declarado">{formatCOP(hoy.cierre_hoy.efectivo_declarado)}</Descriptions.Item>
                 <Descriptions.Item label="Diferencia">
                   <Tag color={Number(hoy.cierre_hoy.diferencia) === 0 ? 'green' : 'red'}>
-                    {Number(hoy.cierre_hoy.diferencia) === 0 ? 'Cuadra' : `$${Number(hoy.cierre_hoy.diferencia).toFixed(2)}`}
+                    {Number(hoy.cierre_hoy.diferencia) === 0 ? 'Cuadra' : formatCOP(hoy.cierre_hoy.diferencia)}
                   </Tag>
                 </Descriptions.Item>
               </>
@@ -97,14 +98,14 @@ export default function CierresCajaPage() {
 
       <Modal title="Arqueo de caja" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={handleCerrar} confirmLoading={createMutation.isPending}>
         <Space direction="vertical" style={{ width: '100%' }}>
-          <Typography.Text>Total ventas en efectivo hoy: <strong>${Number(hoy?.total_ventas_hoy ?? 0).toFixed(2)}</strong></Typography.Text>
+          <Typography.Text>Total ventas en efectivo hoy: <strong>{formatCOP(hoy?.total_ventas_hoy ?? 0)}</strong></Typography.Text>
           <div>
             <Typography.Text>Efectivo contado en caja:</Typography.Text>
-            <InputNumber style={{ width: '100%' }} value={efectivoDeclarado} onChange={(v) => setEfectivoDeclarado(v ?? 0)} min={0} max={999999999} prefix="$" />
+            <InputNumber style={{ width: '100%' }} value={efectivoDeclarado} onChange={(v) => setEfectivoDeclarado(v ?? 0)} min={0} max={999999999} />
           </div>
           {efectivoDeclarado > 0 && (
             <Typography.Text type={efectivoDeclarado - Number(hoy?.total_ventas_hoy ?? 0) === 0 ? 'success' : 'warning'}>
-              Diferencia estimada: <strong>${(efectivoDeclarado - Number(hoy?.total_ventas_hoy ?? 0)).toFixed(2)}</strong>
+              Diferencia estimada: <strong>{formatCOP(efectivoDeclarado - Number(hoy?.total_ventas_hoy ?? 0))}</strong>
               {efectivoDeclarado - Number(hoy?.total_ventas_hoy ?? 0) === 0 ? ' ✓' : ''}
             </Typography.Text>
           )}

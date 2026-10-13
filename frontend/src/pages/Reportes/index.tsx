@@ -11,6 +11,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { useQuery } from '@tanstack/react-query';
 import { reportesApi } from '../../api/reportes.api';
 import dayjs from 'dayjs';
+import { formatCOP } from '../../utils/format';
 import styles from './styles.module.css';
 
 const { RangePicker } = DatePicker;
@@ -74,14 +75,14 @@ export default function ReportesPage() {
         <>
           <Row gutter={16} style={{ marginBottom: 16 }}>
             <Col span={8}><Card><Statistic title="Total ventas" value={porFecha.data.totalVentas} /></Card></Col>
-            <Col span={8}><Card><Statistic title="Ingresos" value={`$${Number(porFecha.data.ingresos).toLocaleString('es-CO')}`} /></Card></Col>
-            <Col span={8}><Card><Statistic title="Ticket promedio" value={`$${Number(porFecha.data.ticketPromedio).toLocaleString('es-CO')}`} /></Card></Col>
+            <Col span={8}><Card><Statistic title="Ingresos" value={formatCOP(porFecha.data.ingresos)} /></Card></Col>
+            <Col span={8}><Card><Statistic title="Ticket promedio" value={formatCOP(porFecha.data.ticketPromedio)} /></Card></Col>
           </Row>
           <Table dataSource={porFecha.data.ventas} loading={loading} rowKey="id_venta" size="small" scroll={{ x: 'max-content' }}
             columns={[
               { title: '#', dataIndex: 'id_venta', width: 50 },
               { title: 'Cliente', dataIndex: ['cliente', 'nombre'], render: (v: string) => v || 'Mostrador' },
-              { title: 'Total', dataIndex: 'total', render: (v: number) => `$${Number(v).toLocaleString('es-CO')}` },
+{ title: 'Total', dataIndex: 'total', render: (v: number) => formatCOP(v) },
               { title: 'Estado', dataIndex: 'estado', render: (v: string) => v === 'ANULADA' ? 'Anulada' : 'Completada' },
               { title: 'Fecha', dataIndex: 'created_at', render: (v: string) => new Date(v).toLocaleString('es-CO') },
             ]}
@@ -103,13 +104,13 @@ export default function ReportesPage() {
         </Card>
       )}
 
-      {vista === 'producto' && porProducto?.data && (
-        <Table dataSource={porProducto.data} loading={loading} rowKey="referencia" size="small" scroll={{ x: 'max-content' }}
+{vista === 'producto' && porProducto?.data && (
+        <Table dataSource={porProducto.data} loading={loading} rowKey="codigo" size="small" scroll={{ x: 'max-content' }}
           columns={[
             { title: 'Producto', dataIndex: 'nombre' },
-            { title: 'Referencia', dataIndex: 'referencia' },
+            { title: 'Código', dataIndex: 'codigo' },
             { title: 'Cantidad vendida', dataIndex: 'cantidad' },
-            { title: 'Total', dataIndex: 'total', render: (v: number) => `$${Number(v).toLocaleString('es-CO')}` },
+            { title: 'Total', dataIndex: 'total', render: (v: number) => formatCOP(v) },
           ]}
         />
       )}
@@ -119,7 +120,7 @@ export default function ReportesPage() {
           columns={[
             { title: 'Cliente', dataIndex: 'cliente' },
             { title: 'Compras', dataIndex: 'cantidad' },
-            { title: 'Total gastado', dataIndex: 'total', render: (v: number) => `$${Number(v).toLocaleString('es-CO')}` },
+            { title: 'Total gastado', dataIndex: 'total', render: (v: number) => formatCOP(v) },
           ]}
         />
       )}

@@ -49,7 +49,7 @@ export class MovimientosService {
           id_cliente: dto.id_cliente,
         },
         include: {
-          producto: { select: { id_producto: true, nombre: true, referencia: true } },
+          producto: { select: { id_producto: true, nombre: true, codigo: true } },
           usuario: { select: { id_usuario: true, nombre: true } },
           cliente: { select: { id_cliente: true, nombre: true } },
         },
@@ -81,7 +81,7 @@ export class MovimientosService {
     const result = await paginate(this.prisma.movimiento, pagination, {
       where,
       include: {
-        producto: { select: { id_producto: true, nombre: true, referencia: true } },
+        producto: { select: { id_producto: true, nombre: true, codigo: true } },
         usuario: { select: { id_usuario: true, nombre: true } },
         cliente: { select: { id_cliente: true, nombre: true } },
       },

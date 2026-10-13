@@ -46,7 +46,7 @@ export class ComprasService {
       return c;
     });
 
-    this.audit.log({ userId, userName, ip, action: 'Registró compra', entity: 'Compra', entityId: compra.id_compra, detail: `Compra #${compra.id_compra} — $${total} — ${detalleData.length} producto(s)` });
+    this.audit.log({ userId, userName, ip, action: 'Registró compra', entity: 'Compra', entityId: compra.id_compra, detail: `Compra #${compra.id_compra} — ${Number(total).toLocaleString('es-CO')} — ${detalleData.length} producto(s)` });
     return { success: true, data: compra };
   }
 

@@ -20,18 +20,18 @@ export class ProductosService {
   ) {}
 
   /**
-   * Crea un nuevo producto con su referencia única.
+   * Crea un nuevo producto con su código único.
    *
    * @param dto - Datos del producto
    * @param userId - ID del usuario que crea
    * @param userName - Nombre del usuario
    * @param ip - Dirección IP
    * @returns Producto creado con categoría incluida
-   * @throws ConflictException si la referencia ya existe
+   * @throws ConflictException si el código ya existe
    */
   async create(dto: CreateProductoDto, userId?: number, userName?: string, ip?: string) {
-    const existe = await this.prisma.producto.findUnique({ where: { referencia: dto.referencia } });
-    if (existe) throw new ConflictException(`Referencia '${dto.referencia}' ya existe`);
+    const existe = await this.prisma.producto.findUnique({ where: { codigo: dto.codigo } });
+    if (existe) throw new ConflictException(`Código '${dto.codigo}' ya existe`);
 
     const producto = await this.prisma.producto.create({
       data: { ...dto, precio_venta: dto.precio_venta },
@@ -42,7 +42,7 @@ export class ProductosService {
       userId, userName, ip,
       action: 'Creó producto',
       entity: 'Producto', entityId: producto.id_producto,
-      detail: `${producto.nombre} (ref: ${producto.referencia})`,
+      detail: `${producto.nombre} (cód: ${producto.codigo})`,
     });
 
     return { success: true, data: producto };
@@ -50,7 +50,7 @@ export class ProductosService {
 
   /**
    * Obtiene todos los productos con paginación y búsqueda opcional
-   * por nombre o referencia.
+   * por nombre o código.
    *
    * @param pagination - Parámetros de paginación
    * @param search - Término de búsqueda opcional
@@ -61,7 +61,7 @@ export class ProductosService {
       ? {
           OR: [
             { nombre: { contains: search } },
-            { referencia: { contains: search } },
+            { codigo: { contains: search } },
           ],
         }
       : {};
@@ -121,11 +121,11 @@ export class ProductosService {
     const actual = await this.findOne(id);
     const productoActual = actual.data;
 
-    if (dto.referencia) {
+    if (dto.codigo) {
       const duplicado = await this.prisma.producto.findFirst({
-        where: { referencia: dto.referencia, NOT: { id_producto: id } },
+        where: { codigo: dto.codigo, NOT: { id_producto: id } },
       });
-      if (duplicado) throw new ConflictException(`Referencia '${dto.referencia}' ya existe`);
+      if (duplicado) throw new ConflictException(`Código '${dto.codigo}' ya existe`);
     }
 
     const precioCambiado = dto.precio_venta !== undefined &&
@@ -153,8 +153,9 @@ export class ProductosService {
 
     const cambios: string[] = [];
     if (dto.nombre && dto.nombre !== productoActual.nombre) cambios.push(`nombre: "${productoActual.nombre}" → "${dto.nombre}"`);
-    if (dto.precio_venta !== undefined && Number(dto.precio_venta) !== Number(productoActual.precio_venta)) cambios.push(`precio: $${productoActual.precio_venta} → $${dto.precio_venta}`);
+    if (dto.precio_venta !== undefined && Number(dto.precio_venta) !== Number(productoActual.precio_venta)) cambios.push(`precio: ${Number(productoActual.precio_venta).toLocaleString('es-CO')} → ${Number(dto.precio_venta).toLocaleString('es-CO')}`);
     if (dto.stock !== undefined && dto.stock !== productoActual.stock) cambios.push(`stock: ${productoActual.stock} → ${dto.stock}`);
+    if (dto.codigo && dto.codigo !== productoActual.codigo) cambios.push(`código: ${productoActual.codigo} → ${dto.codigo}`);
 
     this.audit.log({
       userId, userName, ip,
@@ -200,7 +201,7 @@ export class ProductosService {
       userId, userName, ip,
       action: 'Eliminó producto',
       entity: 'Producto', entityId: id,
-      detail: `${producto.data.nombre} (ref: ${producto.data.referencia})`,
+      detail: `${producto.data.nombre} (cód: ${producto.data.codigo})`,
     });
 
     return { success: true, message: 'Producto eliminado' };

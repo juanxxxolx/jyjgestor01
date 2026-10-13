@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { Table, Button, Modal, Form, Input, InputNumber, Select, Space, Typography } from 'antd';
 import { PlusOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { useCompras } from './useCompras';
+import { formatCOP } from '../../utils/format';
 import styles from './styles.module.css';
 
 /**
@@ -45,7 +46,7 @@ export default function ComprasPage() {
           { title: '#', dataIndex: 'id_compra', key: 'id' },
           { title: 'Proveedor', dataIndex: ['proveedor', 'nombre'], key: 'proveedor', render: (v: string) => v ?? '—' },
           { title: 'Productos', key: 'productos', render: (_: any, r: any) => r.detalle?.length ?? 0 },
-          { title: 'Total', dataIndex: 'total', key: 'total', render: (v: number) => `$${Number(v).toLocaleString('es-CO')}` },
+          { title: 'Total', dataIndex: 'total', key: 'total', render: (v: number) => formatCOP(v) },
           {
             title: 'Fecha',
             dataIndex: 'created_at',
@@ -80,7 +81,7 @@ export default function ComprasPage() {
                       <InputNumber min={1} max={999999} placeholder="Cant" style={{ width: 80 }} />
                     </Form.Item>
                     <Form.Item {...rest} name={[name, 'costo_unitario']} rules={[{ required: true }]} noStyle>
-                      <InputNumber min={0} max={999999999} prefix="$" placeholder="Costo" style={{ width: 130 }} />
+                      <InputNumber min={0} max={999999999} placeholder="Costo" style={{ width: 130 }} />
                     </Form.Item>
                     <Button icon={<MinusCircleOutlined />} onClick={() => remove(name)} danger size="small" />
                   </Space>

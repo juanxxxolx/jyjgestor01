@@ -3,7 +3,7 @@
  * Define la estructura de datos requerida para registrar una compra,
  * incluyendo la validación de cada campo mediante class-validator.
  */
-import { IsArray, IsOptional, IsInt, IsNumber, Min, Max, ArrayMinSize, ArrayMaxSize, ValidateNested } from 'class-validator';
+import { IsArray, IsOptional, IsInt, Min, Max, ArrayMinSize, ArrayMaxSize, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
@@ -14,8 +14,12 @@ class DetalleDto {
   @IsInt() @Min(1, { message: 'ID de producto inválido' }) id_producto: number;
   /** Cantidad del producto a comprar */
   @IsInt() @Min(1) cantidad: number;
-  /** Costo unitario del producto en la compra */
-  @IsNumber() @Min(0) @Max(999999999, { message: 'Costo excesivo' }) @Type(() => Number) costo_unitario: number;
+  /** Costo unitario del producto en la compra (entero, sin decimales, en COP) */
+  @IsInt({ message: 'El costo debe ser un número entero (sin decimales)' })
+  @Min(0, { message: 'El costo no puede ser negativo' })
+  @Max(9999999999, { message: 'Costo excesivo' })
+  @Type(() => Number)
+  costo_unitario: number;
 }
 
 /**
