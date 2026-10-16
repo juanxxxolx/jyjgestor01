@@ -29,12 +29,12 @@ export class CreateProductoDto {
   @MinLength(1)
   nombre: string;
 
-  /** Código único del producto (máximo 50 caracteres) */
+  /** Código único del producto (solo números, máximo 20 dígitos) */
   @IsString()
-  @MaxLength(50)
+  @MaxLength(20)
   @MinLength(1)
-  @Matches(/^[a-zA-Z0-9áéíóúñüÁÉÍÓÚÑÜ\s\-\.]+$/, {
-    message: 'El código solo debe contener letras, números, espacios, guiones y puntos',
+  @Matches(/^[0-9]+$/, {
+    message: 'El código debe contener solo números',
   })
   codigo: string;
 

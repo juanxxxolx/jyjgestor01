@@ -183,19 +183,59 @@ export class ProductosService {
     return { success: true, data: producto };
   }
 
-  /**
-   * Elimina un producto y registra el evento en auditoría.
+/**
+   * Elimina un producto del sistema y registra el evento en auditoría.
+   * Elimina en cascada los registros relacionados (ventas, cotizaciones, compras, movimientos, historial precios).
    *
    * @param id - ID del producto
-   * @param userId - ID del usuario
+   * @param userId - ID del usuario que realiza la eliminación
    * @param userName - Nombre del usuario
-   * @param ip - Dirección IP
+   * @param ip - Dirección IP del usuario
    * @returns Mensaje de confirmación
    * @throws NotFoundException si no existe
    */
   async remove(id: number, userId?: number, userName?: string, ip?: string) {
     const producto = await this.findOne(id);
-    await this.prisma.producto.delete({ where: { id_producto: id } });
+
+    await this.prisma.$transaction(async (tx) => {
+      // Eliminar detalles de ventas relacionadas
+      const ventas = await tx.venta.findMany({ where: { detalle: { some: { id_producto: id } } }, select: { id_venta: true } });
+      const ventaIds = ventas.map(v => v.id_venta);
+      if (ventaIds.length > 0) {
+        await tx.detalleVenta.deleteMany({ where: { id_venta: { in: ventaIds } } });
+        await tx.venta.deleteMany({ where: { id_venta: { in: ventaIds } } });
+      }
+
+      // Eliminar detalles de cotizaciones relacionadas
+      const cotizaciones = await tx.cotizacion.findMany({ where: { detalle: { some: { id_producto: id } } }, select: { id_cotizacion: true } });
+      const cotizacionIds = cotizaciones.map(c => c.id_cotizacion);
+      if (cotizacionIds.length > 0) {
+        await tx.detalleCotizacion.deleteMany({ where: { id_cotizacion: { in: cotizacionIds } } });
+        await tx.cotizacion.deleteMany({ where: { id_cotizacion: { in: cotizacionIds } } });
+      }
+
+      // Eliminar detalles de compras relacionadas
+      const compras = await tx.compra.findMany({ where: { detalle: { some: { id_producto: id } } }, select: { id_compra: true } });
+      const compraIds = compras.map(c => c.id_compra);
+      if (compraIds.length > 0) {
+        await tx.detalleCompra.deleteMany({ where: { id_compra: { in: compraIds } } });
+        await tx.compra.deleteMany({ where: { id_compra: { in: compraIds } } });
+      }
+
+      // Eliminar movimientos de inventario
+      await tx.movimiento.deleteMany({ where: { id_producto: id } });
+
+      // Eliminar historial de precios
+      await tx.precioHistorico.deleteMany({ where: { id_producto: id } });
+
+      // Eliminar detalles de cotizaciones y compras (por si acaso)
+      await tx.detalleCotizacion.deleteMany({ where: { id_producto: id } });
+      await tx.detalleCompra.deleteMany({ where: { id_producto: id } });
+      await tx.detalleVenta.deleteMany({ where: { id_producto: id } });
+
+      // Finalmente eliminar el producto
+      await tx.producto.delete({ where: { id_producto: id } });
+    });
 
     this.audit.log({
       userId, userName, ip,

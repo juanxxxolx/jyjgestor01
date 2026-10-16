@@ -70,7 +70,7 @@ model Categoria {
 model Producto {
   id_producto       Int               @id @default(autoincrement())
   nombre            String            @db.VarChar(100)
-  codigo            String            @unique @db.VarChar(50)
+  codigo            String            @unique @db.VarChar(20)
   descripcion       String?           @db.Text
   imagen_url        String?           @db.VarChar(500)
   precio_venta      Decimal           @db.Decimal(15, 0)

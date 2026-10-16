@@ -176,11 +176,11 @@ export default function ProductosPage() {
           </Form.Item>
           <Form.Item name="codigo" label="Código" rules={[
             { required: true, message: 'Código requerido' },
-            { min: 2, message: 'Mínimo 2 caracteres' },
-            { max: 50, message: 'Máximo 50 caracteres' },
-            { pattern: /^[a-zA-Z0-9áéíóúñüÁÉÍÓÚÑÜ\s\-\.]+$/, message: 'El código solo debe contener letras, números, espacios, guiones y puntos' }
+            { min: 1, message: 'Mínimo 1 dígito' },
+            { max: 20, message: 'Máximo 20 dígitos' },
+            { pattern: /^[0-9]+$/, message: 'El código solo debe contener números' }
           ]}>
-            <Input maxLength={50} />
+            <Input maxLength={20} />
           </Form.Item>
           <Form.Item name="precio_venta" label="Precio de venta" rules={[{ required: true }]}>
             <InputNumber min={0} max={999999999} className={styles.formInput} />
