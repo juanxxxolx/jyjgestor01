@@ -4,8 +4,8 @@
  * y convertirlas en ventas.
  */
 
-import { useState } from 'react';
-import { Table, Button, Select, InputNumber, Card, Space, Typography, Tag, Divider, Row, Col, Modal, List, message, Popconfirm, Input } from 'antd';
+import { useState, useEffect, Fragment } from 'react';
+import { Table, Button, Select, InputNumber, Card, Space, Typography, Tag, Divider, Row, Col, Modal, List, message, Popconfirm, Input, Skeleton, Empty, Alert } from 'antd';
 import { PlusOutlined, DeleteOutlined, ShoppingCartOutlined, SwapOutlined, EditOutlined } from '@ant-design/icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { cotizacionesApi } from '../../api/cotizaciones.api';
@@ -14,6 +14,15 @@ import { clientesApi } from '../../api/clientes.api';
 import type { Producto } from '../../types';
 import { formatCOP } from '../../utils/format';
 import styles from './styles.module.css';
+
+const CotizacionesEmpty = () => (
+  <Empty
+    image={Empty.PRESENTED_IMAGE_SIMPLE}
+    imageStyle={{ height: 120 }}
+    description="No hay cotizaciones registradas"
+    style={{ padding: 48, textAlign: 'center' }}
+  />
+);
 
 /** Representa una línea de producto dentro de la cotización. */
 interface Linea {
@@ -61,6 +70,46 @@ export default function CotizacionesPage() {
     queryFn: () => clientesApi.getAll(editClienteSearch || undefined, 1, 1000),
     enabled: editModalOpen,
   });
+
+  // Filtrar clientes por teléfono (igual que Ventas)
+  const clientesPorTelefono = clienteSearch
+    ? (clientesRes?.data ?? []).filter((c: any) => c.telefono?.includes(clienteSearch))
+    : [];
+
+  // Cliente único para auto-selección
+  const clienteUnico = clientesPorTelefono.length === 1 ? clientesPorTelefono[0] : null;
+
+  // Auto-seleccionar si hay exactamente 1 coincidencia
+  useEffect(() => {
+    if (clienteUnico && idCliente !== clienteUnico.id_cliente) {
+      setIdCliente(clienteUnico.id_cliente);
+    }
+  }, [clienteUnico, idCliente, setIdCliente]);
+
+  // Limpiar selección si se borra la búsqueda
+  useEffect(() => {
+    if (!clienteSearch && idCliente) {
+      setIdCliente(undefined);
+    }
+  }, [clienteSearch, idCliente, setIdCliente]);
+
+  const editClientesPorTelefono = editClienteSearch
+    ? (editClientesRes?.data ?? []).filter((c: any) => c.telefono?.includes(editClienteSearch))
+    : [];
+
+  const editClienteUnico = editClientesPorTelefono.length === 1 ? editClientesPorTelefono[0] : null;
+
+  useEffect(() => {
+    if (editClienteUnico && editIdCliente !== editClienteUnico.id_cliente) {
+      setEditIdCliente(editClienteUnico.id_cliente);
+    }
+  }, [editClienteUnico, editIdCliente, setEditIdCliente]);
+
+  useEffect(() => {
+    if (!editClienteSearch && editIdCliente) {
+      setEditIdCliente(undefined);
+    }
+  }, [editClienteSearch, editIdCliente, setEditIdCliente]);
 
   const createMutation = useMutation({
     mutationFn: cotizacionesApi.create,
@@ -164,23 +213,54 @@ export default function CotizacionesPage() {
       <Row gutter={24}>
         <Col xs={24} lg={14}>
           <Typography.Title level={4}>Cotizaciones / Presupuestos</Typography.Title>
-          <Card title="Nueva cotización">
+          <Card title="Nueva cotización" className={styles.card}>
             <Space direction="vertical" style={{ width: '100%' }}>
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <Input.Search
-                  placeholder="Buscar cliente por teléfono..."
-                  allowClear
-                  value={clienteSearch}
-                  onChange={(e) => setClienteSearch(e.target.value)}
-                  style={{ width: '100%' }}
-                  enterButton
-                />
-                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                  Escribe el número de teléfono para buscar el cliente
-                </Typography.Text>
-              </Space>
-              <Select allowClear showSearch placeholder="Seleccionar cliente (opcional)" style={{ width: '100%' }} value={idCliente} onChange={setIdCliente} optionFilterProp="label" options={(clientesRes?.data ?? []).map((c: any) => ({ value: c.id_cliente, label: `${c.nombre}${c.telefono ? ` — ${c.telefono}` : ''}` }))} />
-              <Button icon={<PlusOutlined />} onClick={() => setModalOpen(true)} block>Agregar producto</Button>
+              <Input.Search
+                placeholder="Buscar cliente por teléfono..."
+                allowClear
+                value={clienteSearch}
+                onChange={(e) => setClienteSearch(e.target.value)}
+                onSearch={(value) => setClienteSearch(value)}
+                style={{ width: '100%' }}
+                enterButton
+                size="large"
+              />
+              <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                Escribe el número de teléfono y presiona Enter para buscar
+              </Typography.Text>
+              {clienteSearch && (
+                <Fragment>
+                  {clientesPorTelefono.length === 0 && (
+                    <Alert className={`${styles.clientAlert}`} type="warning" message="No se encontró cliente con ese teléfono" style={{ width: '100%' }} showIcon />
+                  )}
+                  {clientesPorTelefono.length > 1 && (
+                    <Alert className={`${styles.clientAlert}`} type="info" message={`Se encontraron ${clientesPorTelefono.length} clientes. Refina la búsqueda.`} style={{ width: '100%' }} showIcon />
+                  )}
+                  {clienteUnico && (
+                    <div className={`${styles.clientCard}`}>
+                      <div className={`${styles.clientCardAccent}`} />
+                      <div className={`${styles.clientCardHeader}`}>
+                        <span className={`${styles.clientCardDot}`} />
+                        <span className={`${styles.clientCardLabel}`}>Cliente seleccionado</span>
+                      </div>
+                      <div>
+                        <div className={`${styles.clientCardName}`}>{clienteUnico.nombre}</div>
+                        {clienteUnico.telefono && (
+                          <div className={`${styles.clientCardPhone}`}>— {clienteUnico.telefono}</div>
+                        )}
+                      </div>
+                      <div className={`${styles.clientCardActions}`}>
+                        <Button size="small" danger onClick={() => { setIdCliente(undefined); setClienteSearch(''); }}>
+                          Quitar cliente
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </Fragment>
+              )}
+              <Button icon={<PlusOutlined />} onClick={() => setModalOpen(true)} block size="large">
+                Agregar producto
+              </Button>
             </Space>
             <Divider />
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -214,13 +294,17 @@ export default function CotizacionesPage() {
         <Col xs={24} lg={10}>
           <Typography.Title level={4}>Historial</Typography.Title>
           <div style={{ overflowX: 'auto' }}>
+          {!isLoading && (!cotizacionesRes?.data || cotizacionesRes.data.length === 0) ? (
+            <CotizacionesEmpty />
+          ) : (
             <Table
               dataSource={cotizacionesRes?.data ?? []}
-              loading={isLoading}
+              loading={{ spinning: isLoading, indicator: <Skeleton active /> }}
               rowKey="id_cotizacion"
               size="small"
               scroll={{ x: 'max-content' }}
               pagination={{ current: page, pageSize: 20, total: cotizacionesRes?.meta?.total, onChange: (p) => setPage(p), showSizeChanger: false }}
+              locale={{ emptyText: 'No hay cotizaciones registradas' }}
               columns={[
                 { title: '#', dataIndex: 'id_cotizacion', width: 50, fixed: 'left' },
                 { title: 'Cliente', dataIndex: ['cliente', 'nombre'], width: 120, render: (v: string) => v || <Tag>Mostrador</Tag> },
@@ -245,21 +329,27 @@ export default function CotizacionesPage() {
                 },
               ]}
             />
-          </div>
+          )}</div>
         </Col>
       </Row>
 
       <Modal title="Seleccionar producto" open={modalOpen} onCancel={() => { setModalOpen(false); setBusqueda(''); }} afterOpenChange={(open) => { if (open) setBusqueda(''); }} footer={null} width={500}>
-        <Input.Search placeholder="Buscar producto por nombre..." allowClear value={busqueda} onChange={(e) => setBusqueda(e.target.value)} style={{ marginBottom: 12 }} />
-        <List
-          dataSource={productos}
-          locale={{ emptyText: busqueda ? 'Sin resultados' : 'No hay productos disponibles' }}
-          renderItem={(p: Producto) => (
-            <List.Item actions={[<Button type="link" onClick={() => agregarProducto(p)} disabled={p.stock <= 0}>Agregar</Button>]}>
-              <List.Item.Meta title={p.nombre} description={`Stock: ${p.stock} — Precio: ${formatCOP(p.precio_venta)}`} />
-            </List.Item>
-          )}
-        />
+        <Input.Search placeholder="Buscar por nombre o código..." allowClear value={busqueda} onChange={(e) => setBusqueda(e.target.value)} style={{ marginBottom: 12 }} />
+        {productosRes?.data === undefined ? (
+          <div style={{ padding: 16 }}>
+            <Skeleton active avatar paragraph={{ rows: 6 }} />
+          </div>
+        ) : (
+          <List
+            dataSource={productos}
+            locale={{ emptyText: busqueda ? 'Sin resultados' : 'No hay productos disponibles' }}
+            renderItem={(p: Producto) => (
+              <List.Item actions={[<Button type="link" onClick={() => agregarProducto(p)} disabled={p.stock <= 0}>Agregar</Button>]}>
+                <List.Item.Meta title={p.nombre} description={`Stock: ${p.stock} — Precio: ${formatCOP(p.precio_venta)}`} />
+              </List.Item>
+            )}
+          />
+        )}
       </Modal>
 
       <Modal title="Editar cotización" open={editModalOpen} onCancel={() => { setEditModalOpen(false); setEditingCotizacion(null); setEditLineas([]); setEditIdCliente(undefined); setEditBusqueda(''); setEditProductoModalOpen(false); setEditClienteSearch(''); }} footer={null} width={600}>
@@ -269,15 +359,48 @@ export default function CotizacionesPage() {
             allowClear
             value={editClienteSearch}
             onChange={(e) => setEditClienteSearch(e.target.value)}
+            onSearch={(value) => setEditClienteSearch(value)}
             style={{ width: '100%' }}
             enterButton
+            size="large"
           />
           <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-            Escribe el número de teléfono para buscar el cliente
+            Escribe el número de teléfono y presiona Enter para buscar
           </Typography.Text>
+          {editClienteSearch && (
+            <Fragment>
+              {editClientesPorTelefono.length === 0 && (
+                <Alert className={`${styles.clientAlert}`} type="warning" message="No se encontró cliente con ese teléfono" style={{ width: '100%' }} showIcon />
+              )}
+              {editClientesPorTelefono.length > 1 && (
+                <Alert className={`${styles.clientAlert}`} type="info" message={`Se encontraron ${editClientesPorTelefono.length} clientes. Refina la búsqueda.`} style={{ width: '100%' }} showIcon />
+              )}
+              {editClienteUnico && (
+                <div className={`${styles.clientCard}`}>
+                  <div className={`${styles.clientCardAccent}`} />
+                  <div className={`${styles.clientCardHeader}`}>
+                    <span className={`${styles.clientCardDot}`} />
+                    <span className={`${styles.clientCardLabel}`}>Cliente seleccionado</span>
+                  </div>
+                  <div>
+                    <div className={`${styles.clientCardName}`}>{editClienteUnico.nombre}</div>
+                    {editClienteUnico.telefono && (
+                      <div className={`${styles.clientCardPhone}`}>— {editClienteUnico.telefono}</div>
+                    )}
+                  </div>
+                  <div className={`${styles.clientCardActions}`}>
+                    <Button size="small" danger onClick={() => { setEditIdCliente(undefined); setEditClienteSearch(''); }}>
+                      Quitar cliente
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </Fragment>
+          )}
         </Space>
-        <Select allowClear showSearch placeholder="Seleccionar cliente (opcional)" style={{ width: '100%', marginBottom: 12 }} value={editIdCliente} onChange={setEditIdCliente} optionFilterProp="label" options={(editClientesRes?.data ?? []).map((c: any) => ({ value: c.id_cliente, label: `${c.nombre}${c.telefono ? ` — ${c.telefono}` : ''}` }))} />
-        <Button icon={<PlusOutlined />} onClick={() => setEditProductoModalOpen(true)} block style={{ marginBottom: 12 }}>Agregar producto</Button>
+        <Button icon={<PlusOutlined />} onClick={() => setEditProductoModalOpen(true)} block size="large" style={{ marginBottom: 12 }}>
+          Agregar producto
+        </Button>
         <Divider />
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
@@ -307,16 +430,22 @@ export default function CotizacionesPage() {
       </Modal>
 
       <Modal title="Seleccionar producto para editar" open={editProductoModalOpen} onCancel={() => { setEditProductoModalOpen(false); setEditBusqueda(''); }} footer={null} width={500} style={{ top: 100 }}>
-        <Input.Search placeholder="Buscar producto por nombre..." allowClear value={editBusqueda} onChange={(e) => setEditBusqueda(e.target.value)} style={{ marginBottom: 12 }} />
-        <List
-          dataSource={editProductos}
-          locale={{ emptyText: editBusqueda ? 'Sin resultados' : 'No hay productos disponibles' }}
-          renderItem={(p: Producto) => (
-            <List.Item actions={[<Button type="link" onClick={() => agregarProductoEdit(p)}>Agregar</Button>]}>
-              <List.Item.Meta title={p.nombre} description={`Stock: ${p.stock} — Precio: ${formatCOP(p.precio_venta)}`} />
-            </List.Item>
-          )}
-        />
+        <Input.Search placeholder="Buscar por nombre o código..." allowClear value={editBusqueda} onChange={(e) => setEditBusqueda(e.target.value)} style={{ marginBottom: 12 }} />
+        {productosRes?.data === undefined ? (
+          <div style={{ padding: 16 }}>
+            <Skeleton active avatar paragraph={{ rows: 6 }} />
+          </div>
+        ) : (
+          <List
+            dataSource={editProductos}
+            locale={{ emptyText: editBusqueda ? 'Sin resultados' : 'No hay productos disponibles' }}
+            renderItem={(p: Producto) => (
+              <List.Item actions={[<Button type="link" onClick={() => agregarProductoEdit(p)}>Agregar</Button>]}>
+                <List.Item.Meta title={p.nombre} description={`Stock: ${p.stock} — Precio: ${formatCOP(p.precio_venta)}`} />
+              </List.Item>
+            )}
+          />
+        )}
       </Modal>
     </div>
   );

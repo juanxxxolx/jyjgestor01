@@ -5,7 +5,7 @@
  * y filtros por rango de fechas.
  */
 
-import { Table, Tag, Typography, Space, DatePicker, Button } from 'antd';
+import { Table, Tag, Typography, Space, DatePicker, Button, Skeleton, Empty } from 'antd';
 import { useAuditoria } from './useAuditoria';
 import styles from './styles.module.css';
 import dayjs from 'dayjs';
@@ -19,6 +19,19 @@ const actionColors: Record<string, string> = {
 };
 
 const { RangePicker } = DatePicker;
+
+const AuditoriaEmpty = () => (
+  <Empty
+    image={Empty.PRESENTED_IMAGE_SIMPLE}
+    imageStyle={{ height: 120 }}
+    description="No hay registros de auditoría"
+    style={{ padding: 48, textAlign: 'center' }}
+  >
+    <Typography.Text type="secondary">
+      Los registros aparecerán aquí cuando se realicen acciones en el sistema.
+    </Typography.Text>
+  </Empty>
+);
 
 /**
  * Componente de la página Auditoría.
@@ -43,6 +56,8 @@ export default function AuditoriaPage() {
     setFechaDesde('');
     setFechaHasta('');
   };
+
+  const hasData = (data?.data?.length ?? 0) > 0;
 
   return (
     <div className={styles.page}>
@@ -69,41 +84,46 @@ export default function AuditoriaPage() {
         )}
       </Space>
 
-      <Table
-        dataSource={data?.data ?? []}
-        loading={isLoading}
-        rowKey="id"
-        pagination={{
-          current: page,
-          pageSize: limit,
-          total: data?.meta?.total,
-          onChange: (p) => setPage(p),
-          showSizeChanger: false,
-        }}
-        scroll={{ x: 'max-content' }}
-        columns={[
-          {
-            title: 'Fecha',
-            dataIndex: 'created_at',
-            key: 'fecha',
-            width: 180,
-            render: (v: string) => new Date(v).toLocaleString('es-CO'),
-          },
-          { title: 'Usuario', dataIndex: 'usuario_nombre', key: 'usuario', width: 130 },
-          {
-            title: 'Acción',
-            dataIndex: 'accion',
-            key: 'accion',
-            width: 150,
-            render: (v: string) => {
-              const key = Object.keys(actionColors).find((k) => v.startsWith(k));
-              return <Tag color={key ? actionColors[key] : 'default'}>{v}</Tag>;
+      {!isLoading && !hasData ? (
+        <AuditoriaEmpty />
+      ) : (
+        <Table
+          dataSource={data?.data ?? []}
+          loading={{ spinning: isLoading, indicator: <Skeleton active /> }}
+          rowKey="id"
+          pagination={{
+            current: page,
+            pageSize: limit,
+            total: data?.meta?.total,
+            onChange: (p) => setPage(p),
+            showSizeChanger: false,
+          }}
+          scroll={{ x: 'max-content' }}
+          locale={{ emptyText: 'No hay registros de auditoría' }}
+          columns={[
+            {
+              title: 'Fecha',
+              dataIndex: 'created_at',
+              key: 'fecha',
+              width: 180,
+              render: (v: string) => new Date(v).toLocaleString('es-CO'),
             },
-          },
-          { title: 'Entidad', dataIndex: 'entidad', key: 'entidad', width: 100 },
-          { title: 'Detalle', dataIndex: 'detalle', key: 'detalle', ellipsis: true },
-        ]}
-      />
+            { title: 'Usuario', dataIndex: 'usuario_nombre', key: 'usuario', width: 130 },
+            {
+              title: 'Acción',
+              dataIndex: 'accion',
+              key: 'accion',
+              width: 150,
+              render: (v: string) => {
+                const key = Object.keys(actionColors).find((k) => v.startsWith(k));
+                return <Tag color={key ? actionColors[key] : 'default'}>{v}</Tag>;
+              },
+            },
+            { title: 'Entidad', dataIndex: 'entidad', key: 'entidad', width: 100 },
+            { title: 'Detalle', dataIndex: 'detalle', key: 'detalle', ellipsis: true },
+          ]}
+        />
+      )}
     </div>
   );
 }

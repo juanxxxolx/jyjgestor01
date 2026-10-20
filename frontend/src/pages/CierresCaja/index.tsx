@@ -6,11 +6,24 @@
  */
 
 import { useState } from 'react';
-import { Table, Button, Card, Typography, Modal, InputNumber, Space, Tag, Descriptions, message } from 'antd';
+import { Table, Button, Card, Typography, Modal, InputNumber, Space, Tag, Descriptions, message, Skeleton, Empty } from 'antd';
 import { DollarOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { useCierresCaja } from './useCierresCaja';
 import { formatCOP } from '../../utils/format';
 import styles from './styles.module.css';
+
+const CierresEmpty = () => (
+  <Empty
+    image={Empty.PRESENTED_IMAGE_SIMPLE}
+    imageStyle={{ height: 120 }}
+    description="No hay cierres registrados"
+    style={{ padding: 48, textAlign: 'center' }}
+  >
+    <Button type="primary" icon={<DollarOutlined />} size="large" onClick={() => window.location.href = '/cierres-caja'}>
+      Realizar primer cierre
+    </Button>
+  </Empty>
+);
 
 /**
  * Página principal de Arqueo de Caja.
@@ -85,31 +98,40 @@ export default function CierresCajaPage() {
       )}
 
       <Card title="Historial de cierres">
-        <Table
-          dataSource={cierresRes?.data ?? []}
-          columns={columns}
-          rowKey="id_cierre"
-          loading={isLoading}
-          pagination={{ current: page, pageSize: limit, total: cierresRes?.total ?? 0, onChange: (p) => setPage(p), showSizeChanger: false }}
-          scroll={{ x: 'max-content' }}
-          size="small"
-        />
+        {!isLoading && (!cierresRes?.data || cierresRes.data.length === 0) ? (
+          <CierresEmpty />
+        ) : (
+          <Table
+            dataSource={cierresRes?.data ?? []}
+            columns={columns}
+            rowKey="id_cierre"
+            loading={{ spinning: isLoading, indicator: <Skeleton active /> }}
+            pagination={{ current: page, pageSize: limit, total: cierresRes?.total ?? 0, onChange: (p) => setPage(p), showSizeChanger: false }}
+            scroll={{ x: 'max-content' }}
+            size="small"
+            locale={{ emptyText: 'No hay cierres registrados' }}
+          />
+        )}
       </Card>
 
-      <Modal title="Arqueo de caja" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={handleCerrar} confirmLoading={createMutation.isPending}>
-        <Space direction="vertical" style={{ width: '100%' }}>
-          <Typography.Text>Total ventas en efectivo hoy: <strong>{formatCOP(hoy?.total_ventas_hoy ?? 0)}</strong></Typography.Text>
-          <div>
-            <Typography.Text>Efectivo contado en caja:</Typography.Text>
-            <InputNumber style={{ width: '100%' }} value={efectivoDeclarado} onChange={(v) => setEfectivoDeclarado(v ?? 0)} min={0} max={999999999} />
-          </div>
-          {efectivoDeclarado > 0 && (
-            <Typography.Text type={efectivoDeclarado - Number(hoy?.total_ventas_hoy ?? 0) === 0 ? 'success' : 'warning'}>
-              Diferencia estimada: <strong>{formatCOP(efectivoDeclarado - Number(hoy?.total_ventas_hoy ?? 0))}</strong>
-              {efectivoDeclarado - Number(hoy?.total_ventas_hoy ?? 0) === 0 ? ' ✓' : ''}
-            </Typography.Text>
-          )}
-        </Space>
+      <Modal title="Arqueo de caja" open={modalOpen} onCancel={() => setModalOpen(false)} onOk={handleCerrar} confirmLoading={createMutation.isPending} width={450}>
+        {createMutation.isPending ? (
+          <Skeleton active paragraph={{ rows: 4 }} />
+        ) : (
+          <Space direction="vertical" style={{ width: '100%' }}>
+            <Typography.Text>Total ventas en efectivo hoy: <strong>{formatCOP(hoy?.total_ventas_hoy ?? 0)}</strong></Typography.Text>
+            <div>
+              <Typography.Text>Efectivo contado en caja:</Typography.Text>
+              <InputNumber style={{ width: '100%' }} value={efectivoDeclarado} onChange={(v) => setEfectivoDeclarado(v ?? 0)} min={0} max={999999999} placeholder="0" />
+            </div>
+            {efectivoDeclarado > 0 && (
+              <Typography.Text type={efectivoDeclarado - Number(hoy?.total_ventas_hoy ?? 0) === 0 ? 'success' : 'warning'}>
+                Diferencia estimada: <strong>{formatCOP(efectivoDeclarado - Number(hoy?.total_ventas_hoy ?? 0))}</strong>
+                {efectivoDeclarado - Number(hoy?.total_ventas_hoy ?? 0) === 0 ? ' ✓' : ''}
+              </Typography.Text>
+            )}
+          </Space>
+        )}
       </Modal>
     </div>
   );

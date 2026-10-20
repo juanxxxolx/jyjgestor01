@@ -228,11 +228,6 @@ export class ProductosService {
       // Eliminar historial de precios
       await tx.precioHistorico.deleteMany({ where: { id_producto: id } });
 
-      // Eliminar detalles de cotizaciones y compras (por si acaso)
-      await tx.detalleCotizacion.deleteMany({ where: { id_producto: id } });
-      await tx.detalleCompra.deleteMany({ where: { id_producto: id } });
-      await tx.detalleVenta.deleteMany({ where: { id_producto: id } });
-
       // Finalmente eliminar el producto
       await tx.producto.delete({ where: { id_producto: id } });
     });

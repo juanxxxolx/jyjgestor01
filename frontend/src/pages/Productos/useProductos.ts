@@ -80,7 +80,14 @@ export function useProductos() {
   const deleteMutation = useMutation({
     mutationFn: productosApi.delete,
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['productos'] }); message.success('Producto eliminado'); },
-    onError: () => message.error('Error al eliminar'),
+    onError: (e: any) => {
+      const msg = e.response?.data?.message || 'Error al eliminar';
+      if (e.response?.status === 500) {
+        message.error('No se puede eliminar: tiene ventas, cotizaciones o compras asociadas');
+      } else {
+        message.error(msg);
+      }
+    },
   });
 
   const openCreate = () => { setEditing(null); form.resetFields(); setModalOpen(true); };

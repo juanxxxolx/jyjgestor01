@@ -4,11 +4,24 @@
  * Incluye exportación a Excel.
  */
 
-import { Table, Button, Modal, Form, Input, Select, Switch, Typography, Space, Tag, message, Popconfirm } from 'antd';
+import { Table, Button, Modal, Form, Input, Select, Switch, Typography, Space, Tag, message, Popconfirm, Skeleton, Empty } from 'antd';
 import { PlusOutlined, EditOutlined, DownloadOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useUsuarios } from './useUsuarios';
 import { downloadExport } from '../../utils/download';
 import styles from './styles.module.css';
+
+const UsuariosEmpty = () => (
+  <Empty
+    image={Empty.PRESENTED_IMAGE_SIMPLE}
+    imageStyle={{ height: 120 }}
+    description="No hay usuarios registrados"
+    style={{ padding: 48, textAlign: 'center' }}
+  >
+    <Button type="primary" icon={<PlusOutlined />} size="large" onClick={() => window.location.href = '/usuarios'}>
+      Crear primer usuario
+    </Button>
+  </Empty>
+);
 
 /**
  * Componente de la página Usuarios.
@@ -74,9 +87,9 @@ export default function UsuariosPage() {
         <Space>
           <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(record)} />
           {record.activo && (
-            <Button size="small" danger icon={<CloseCircleOutlined />} onClick={() => handleToggleActivo(record)}>
-              Desactivar
-            </Button>
+            <Popconfirm title="¿Desactivar usuario?" onConfirm={() => handleToggleActivo(record)} okText="Sí" cancelText="Cancelar">
+              <Button size="small" danger icon={<CloseCircleOutlined />}>Desactivar</Button>
+            </Popconfirm>
           )}
         </Space>
       ),
@@ -88,7 +101,7 @@ export default function UsuariosPage() {
       <Space className={styles.header}>
         <Typography.Title level={4} className={styles.title}>Usuarios</Typography.Title>
         <Space>
-          <Button icon={<DownloadOutlined />} onClick={() => downloadExport('/usuarios/export', 'usuarios.xlsx')}>
+          <Button icon={<DownloadOutlined />} onClick={() => { downloadExport('/usuarios/export', 'usuarios.xlsx'); message.success('Exportado'); }}>
             Exportar
           </Button>
           <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
@@ -106,22 +119,28 @@ export default function UsuariosPage() {
             dataSource={pendientes}
             columns={pendientesColumns}
             rowKey="id_usuario"
-            loading={isLoading}
+            loading={{ spinning: isLoading, indicator: <Skeleton active /> }}
             pagination={false}
             scroll={{ x: 'max-content' }}
             size="small"
+            locale={{ emptyText: 'Sin pendientes' }}
           />
         </div>
       )}
 
       <Typography.Title level={5}>Usuarios registrados</Typography.Title>
-      <Table
-        dataSource={activos}
-        loading={isLoading}
-        rowKey="id_usuario"
-        scroll={{ x: 'max-content' }}
-        columns={columns}
-      />
+      {!isLoading && activos.length === 0 ? (
+        <UsuariosEmpty />
+      ) : (
+        <Table
+          dataSource={activos}
+          loading={{ spinning: isLoading, indicator: <Skeleton active /> }}
+          rowKey="id_usuario"
+          scroll={{ x: 'max-content' }}
+          locale={{ emptyText: 'No hay usuarios registrados' }}
+          columns={columns}
+        />
+      )}
 
       <Modal
         title={editing ? 'Editar usuario' : 'Nuevo usuario'}
@@ -130,47 +149,71 @@ export default function UsuariosPage() {
         onOk={() => form.submit()}
         confirmLoading={createMutation.isPending || updateMutation.isPending}
         destroyOnClose
+        width={500}
       >
-        <Form form={form} layout="vertical" onFinish={onFinish}>
-          <Form.Item name="nombre" label="Nombre" rules={[
-            { required: true, message: 'Nombre requerido' },
-            { max: 100, message: 'Máximo 100 caracteres' },
-            { pattern: /^[a-zA-ZáéíóúñüÁÉÍÓÚÑÜ\s\-']+$/, message: 'Solo se permiten letras, espacios, guiones y apóstrofes' }
-          ]}>
-            <Input disabled={!!editing} maxLength={100} />
-          </Form.Item>
-          <Form.Item name="email" label="Email" rules={[
-            { required: true, message: 'Email requerido' },
-            { type: 'email', message: 'Email no válido' },
-            { max: 100, message: 'Máximo 100 caracteres' },
-            { pattern: /^\S+$/, message: 'El email no debe contener espacios' }
-          ]}>
-            <Input disabled={!!editing} maxLength={100} />
-          </Form.Item>
-          {!editing && (
-            <Form.Item name="password" label="Contraseña" rules={[
-              { required: true, message: 'Contraseña requerida' },
-              { min: 8, message: 'Mínimo 8 caracteres' },
-              { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/, message: 'Debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un símbolo' }
-            ]}>
-              <Input.Password placeholder="Mín. 8 chars, mayúscula, número y símbolo" />
-            </Form.Item>
-          )}
-          <Form.Item name="id_rol" label="Rol" rules={[{ required: true, message: 'Seleccione un rol' }]}>
-            <Select
-              options={[
-                { value: 1, label: 'Admin' },
-                { value: 2, label: 'Usuario' },
-                { value: 3, label: 'Invitado' },
+        {createMutation.isPending || updateMutation.isPending ? (
+          <Form layout="vertical">
+            <Skeleton active paragraph={{ rows: 5 }} />
+          </Form>
+        ) : (
+          <Form form={form} layout="vertical" onFinish={onFinish}>
+            <Form.Item
+              name="nombre"
+              label="Nombre *"
+              rules={[
+                { required: true, message: 'El nombre es obligatorio' },
+                { max: 100, message: 'Máximo 100 caracteres' },
+                { pattern: /^[a-zA-ZáéíóúñüÁÉÍÓÚÑÜ\s\-']+$/, message: 'Solo se permiten letras, espacios, guiones y apóstrofes' }
               ]}
-            />
-          </Form.Item>
-          {editing && (
-            <Form.Item name="activo" label="Activo" valuePropName="checked">
-              <Switch />
+            >
+              <Input disabled={!!editing} maxLength={100} placeholder="Ej: Juan Pérez García" />
             </Form.Item>
-          )}
-        </Form>
+            <Form.Item
+              name="email"
+              label="Email *"
+              rules={[
+                { required: true, message: 'El email es obligatorio' },
+                { type: 'email', message: 'Email no válido' },
+                { max: 100, message: 'Máximo 100 caracteres' },
+                { pattern: /^\S+$/, message: 'El email no debe contener espacios' }
+              ]}
+            >
+              <Input disabled={!!editing} maxLength={100} placeholder="Ej: juan@empresa.com" />
+            </Form.Item>
+            {!editing && (
+              <Form.Item
+                name="password"
+                label="Contraseña *"
+                rules={[
+                  { required: true, message: 'La contraseña es obligatoria' },
+                  { min: 8, message: 'Mínimo 8 caracteres' },
+                  { pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/, message: 'Mín. 8 chars, mayúscula, minúscula, número y símbolo' }
+                ]}
+              >
+                <Input.Password placeholder="Mín. 8 chars, mayúscula, minúscula, número y símbolo" />
+              </Form.Item>
+            )}
+            <Form.Item
+              name="id_rol"
+              label="Rol *"
+              rules={[{ required: true, message: 'Seleccione un rol' }]}
+            >
+              <Select
+                placeholder="Seleccionar rol"
+                options={[
+                  { value: 1, label: 'Admin' },
+                  { value: 2, label: 'Usuario' },
+                  { value: 3, label: 'Invitado' },
+                ]}
+              />
+            </Form.Item>
+            {editing && (
+              <Form.Item name="activo" label="Activo" valuePropName="checked">
+                <Switch />
+              </Form.Item>
+            )}
+          </Form>
+        )}
       </Modal>
     </div>
   );

@@ -6,13 +6,22 @@
  */
 
 import { useState, useRef, useEffect, Fragment } from 'react';
-import { Table, Button, Select, InputNumber, Card, Space, Typography, Tag, Divider, Row, Col, Modal, List, Popconfirm, Descriptions, Input, Alert } from 'antd';
+import { Table, Button, Select, InputNumber, Card, Space, Typography, Tag, Divider, Row, Col, Modal, List, Popconfirm, Descriptions, Input, Alert, Skeleton, Empty } from 'antd';
 import { ShoppingCartOutlined, DeleteOutlined, PlusOutlined, StopOutlined, FileTextOutlined, PrinterOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { useVentas } from './useVentas';
 import { ventasApi } from '../../api/ventas.api';
 import type { Producto } from '../../types';
 import { formatCOP } from '../../utils/format';
 import styles from './styles.module.css';
+
+const VentasEmpty = () => (
+  <Empty
+    image={Empty.PRESENTED_IMAGE_SIMPLE}
+    imageStyle={{ height: 120 }}
+    description="No hay ventas registradas"
+    style={{ padding: 48, textAlign: 'center' }}
+  />
+);
 
 /**
  * Página principal de Ventas.
@@ -173,9 +182,12 @@ export default function VentasPage() {
         <Col xs={24} lg={10}>
           <Typography.Title level={4}>Historial de ventas</Typography.Title>
           <div style={{ overflowX: 'auto' }}>
-          <Table
+          {!isLoading && (!ventasRes?.data || ventasRes.data.length === 0) ? (
+            <VentasEmpty />
+          ) : (
+            <Table
             dataSource={ventasRes?.data ?? []}
-            loading={isLoading}
+            loading={{ spinning: isLoading, indicator: <Skeleton active /> }}
             rowKey="id_venta"
             size="small"
             pagination={{
@@ -185,6 +197,7 @@ export default function VentasPage() {
               showSizeChanger: false,
             }}
             scroll={{ x: 'max-content' }}
+            locale={{ emptyText: 'No hay ventas registradas' }}
             columns={[
               { title: '#', dataIndex: 'id_venta', key: 'id', width: 50, fixed: 'left' },
               {
@@ -234,7 +247,7 @@ export default function VentasPage() {
               },
             ]}
           />
-          </div>
+          )}</div>
         </Col>
       </Row>
 
@@ -247,34 +260,40 @@ export default function VentasPage() {
         width={500}
       >
         <Input.Search
-          placeholder="Buscar producto por nombre..."
+          placeholder="Buscar por nombre o código..."
           allowClear
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           style={{ marginBottom: 12 }}
         />
-        <List
-          dataSource={productos}
-          locale={{ emptyText: busqueda ? 'Sin resultados' : 'No hay productos disponibles' }}
-          renderItem={(p: Producto) => (
-            <List.Item
-              actions={[
-                <Button
-                  type="link"
-                  onClick={() => { agregarProducto(p); setModalOpen(false); }}
-                  disabled={p.stock <= 0}
-                >
-                  Agregar
-                </Button>,
-              ]}
-            >
-              <List.Item.Meta
-                title={p.nombre}
-                description={`Stock: ${p.stock} — Precio: ${formatCOP(p.precio_venta)}`}
-              />
-            </List.Item>
-          )}
-        />
+        {productosRes?.data === undefined ? (
+          <div style={{ padding: 16 }}>
+            <Skeleton active avatar paragraph={{ rows: 6 }} />
+          </div>
+        ) : (
+          <List
+            dataSource={productos}
+            locale={{ emptyText: busqueda ? 'Sin resultados' : 'No hay productos disponibles' }}
+            renderItem={(p: Producto) => (
+              <List.Item
+                actions={[
+                  <Button
+                    type="link"
+                    onClick={() => { agregarProducto(p); setModalOpen(false); }}
+                    disabled={p.stock <= 0}
+                  >
+                    Agregar
+                  </Button>,
+                ]}
+              >
+                <List.Item.Meta
+                  title={p.nombre}
+                  description={`Stock: ${p.stock} — Precio: ${formatCOP(p.precio_venta)}`}
+                />
+              </List.Item>
+            )}
+          />
+        )}
       </Modal>
 
       <Modal
@@ -293,7 +312,9 @@ export default function VentasPage() {
         width={500}
         loading={reciboLoading}
       >
-        {reciboData?.data && (
+        {reciboLoading ? (
+          <Skeleton active avatar paragraph={{ rows: 8 }} />
+        ) : reciboData?.data ? (
           <div ref={reciboRef} style={{ padding: 16, fontFamily: 'monospace' }}>
             <Typography.Title level={4} style={{ textAlign: 'center' }}>JYJGestor</Typography.Title>
             <Typography.Text style={{ display: 'block', textAlign: 'center' }}>Sistema de Inventario</Typography.Text>
@@ -335,7 +356,7 @@ export default function VentasPage() {
               Total: {formatCOP(reciboData.data.total)}
             </Typography.Title>
           </div>
-        )}
+        ) : null}
       </Modal>
     </div>
   );
