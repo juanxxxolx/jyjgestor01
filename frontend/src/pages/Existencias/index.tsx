@@ -8,6 +8,7 @@ import { Table, Button, Modal, Form, Input, InputNumber, Select, Tag, Space, Typ
 import { PlusOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useExistencias } from './useExistencias';
 import { downloadExport } from '../../utils/download';
+import { useFormValidation } from '../../hooks/useFormValidation';
 import type { Cliente } from '../../types';
 import styles from './styles.module.css';
 
@@ -41,6 +42,17 @@ export default function ExistenciasPage() {
     createMutation, setModalOpen, setProductoFiltro,
     clienteSearch, setClienteSearch,
   } = useExistencias();
+
+  const { handleSubmit, isSubmitting } = useFormValidation({
+    form,
+    onSubmit: async (values) => {
+      await createMutation.mutateAsync(values);
+      message.success('Movimiento registrado');
+      setModalOpen(false);
+      form.resetFields();
+    },
+    onSuccess: () => {},
+  });
 
   const hasData = (movimientosRes?.data?.length ?? 0) > 0;
 
@@ -112,17 +124,17 @@ export default function ExistenciasPage() {
         title="Registrar movimiento"
         open={modalOpen}
         onCancel={() => { setModalOpen(false); form.resetFields(); }}
-        onOk={() => form.submit()}
-        confirmLoading={createMutation.isPending}
+        onOk={handleSubmit}
+        confirmLoading={isSubmitting}
         destroyOnClose
         width={550}
       >
-        {createMutation.isPending ? (
+        {isSubmitting ? (
           <Form layout="vertical">
             <Skeleton active paragraph={{ rows: 6 }} />
           </Form>
         ) : (
-          <Form form={form} layout="vertical" onFinish={(v) => createMutation.mutate(v)}>
+          <Form form={form} layout="vertical" onFinish={handleSubmit}>
             <Form.Item
               name="id_producto"
               label="Producto *"
