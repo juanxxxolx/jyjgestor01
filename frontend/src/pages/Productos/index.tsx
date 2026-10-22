@@ -241,11 +241,11 @@ export default function ProductosPage() {
               label="Código *"
               rules={[
                 { required: true, message: 'El código es obligatorio' },
-                { max: 50, message: 'Máximo 50 caracteres' },
-                { pattern: /^[A-Z0-9\-_]+$/, message: 'Solo mayúsculas, números, guiones y guiones bajos' },
+                { max: 10, message: 'Máximo 10 dígitos' },
+                { pattern: /^\d{1,10}$/, message: 'Solo números, máximo 10 dígitos' },
               ]}
             >
-              <Input maxLength={50} placeholder="Ej: CAM-ALG-001" style={{ textTransform: 'uppercase' }} />
+              <Input maxLength={10} placeholder="Ej: 1234567890" style={{ textTransform: 'none' }} />
             </Form.Item>
 
             <Form.Item
