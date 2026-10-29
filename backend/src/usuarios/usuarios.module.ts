@@ -5,8 +5,10 @@
  */
 import { Module } from '@nestjs/common';
 import { UsuariosController } from './usuarios.controller';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
+  imports: [AuthModule],
   controllers: [UsuariosController],
 })
 export class UsuariosModule {}

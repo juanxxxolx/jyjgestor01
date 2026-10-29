@@ -18,4 +18,8 @@ export const usuariosApi = {
 
   /** Elimina (desactiva) un usuario. */
   delete: (id: number) => api.delete(`/usuarios/${id}`).then((r) => r.data),
+
+  /** Genera un enlace de recuperación de contraseña para el usuario. */
+  generarEnlaceRecuperacion: (id: number) =>
+    api.post(`/usuarios/${id}/restablecer-password`).then((r) => r.data),
 };

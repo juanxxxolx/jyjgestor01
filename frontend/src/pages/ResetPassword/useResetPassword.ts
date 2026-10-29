@@ -1,24 +1,21 @@
 /**
  * @file Hook personalizado para la página ResetPassword.
- * Extrae el token de la URL, maneja el envío de la nueva contraseña
- * y los estados de carga y éxito.
+ * Extrae el token de la URL, valida que siga vigente antes de mostrar el
+ * formulario y gestiona el envío de la nueva contraseña.
  */
 
 import { useState } from 'react';
-import { message } from 'antd';
 import { useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { authApi } from '../../api/auth.api';
 
 /**
  * Hook que gestiona el restablecimiento de contraseña.
  * - Lee el token del query string `?token=...`.
+ * - Valida el token contra el backend al cargar la página.
  * - `onFinish`: llama a `authApi.resetPassword` con el token y la nueva contraseña.
- * - En éxito: marca `success = true` para que el componente muestre el resultado.
- * - En error: muestra mensaje con antd `message`.
  *
- * @returns {object} - `loading` (boolean), `success` (boolean),
- *                     `onFinish` (función `{ password }`),
- *                     `hasToken` (boolean, true si hay token en la URL).
+ * @returns {object} - Estados de validación, carga y resultado.
  */
 export function useResetPassword() {
   const [loading, setLoading] = useState(false);
@@ -26,17 +23,32 @@ export function useResetPassword() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token') || '';
 
-  const onFinish = async (values: { password: string }) => {
+  const { isLoading: validating, isError } = useQuery({
+    queryKey: ['reset-token', token],
+    queryFn: () => authApi.validateResetToken(token),
+    enabled: !!token,
+    retry: false,
+    staleTime: 0,
+  });
+
+  const onFinish = async (values: { password: string; confirmPassword: string }) => {
     setLoading(true);
     try {
       await authApi.resetPassword(token, values.password);
       setSuccess(true);
-    } catch (err: any) {
-      message.error(err.response?.data?.message || 'Error al restablecer contraseña');
+    } catch {
+      // El interceptor global de Axios muestra el mensaje de error
     } finally {
       setLoading(false);
     }
   };
 
-  return { loading, success, onFinish, hasToken: !!token };
+  return {
+    loading,
+    success,
+    onFinish,
+    hasToken: !!token,
+    validating,
+    tokenInvalid: !!token && isError,
+  };
 }

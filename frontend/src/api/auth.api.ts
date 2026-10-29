@@ -14,9 +14,13 @@ export const authApi = {
   register: (data: { nombre: string; email: string; password: string; id_rol?: number }) =>
     api.post('/auth/registro', data).then((r) => r.data),
 
-  /** Envía un correo con el token para restablecer la contraseña. */
+  /** Envía un correo con el enlace para restablecer la contraseña. */
   forgotPassword: (email: string) =>
     api.post('/auth/forgot-password', { email }).then((r) => r.data),
+
+  /** Verifica si un token de recuperación sigue siendo válido. */
+  validateResetToken: (token: string) =>
+    api.get('/auth/validar-token', { params: { token } }).then((r) => r.data),
 
   /** Restablece la contraseña usando el token recibido por correo. */
   resetPassword: (token: string, password: string) =>

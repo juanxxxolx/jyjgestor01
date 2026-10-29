@@ -4,7 +4,8 @@
  * recuperación de contraseña y cambio de contraseña (este último
  * requiere autenticación JWT).
  */
-import { Controller, Post, Body, HttpCode, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Get, Body, HttpCode, HttpStatus, UseGuards, Req, Query, BadRequestException } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -41,6 +42,7 @@ export class AuthController {
    * @returns Mensaje de éxito y confirmación de registro pendiente de aprobación
    */
   @Post('registro')
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
@@ -53,6 +55,7 @@ export class AuthController {
    */
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
@@ -65,8 +68,21 @@ export class AuthController {
    */
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.authService.forgotPassword(dto);
+  }
+
+  /**
+   * Verifica si un token de recuperación es válido (sin consumirlo).
+   * Se usa para mostrar un mensaje claro antes de pedir la nueva contraseña.
+   */
+  @Get('validar-token')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
+  validateToken(@Query('token') token: string) {
+    if (!token) throw new BadRequestException('Token requerido');
+    return this.authService.validateResetToken(token);
   }
 
   /**
@@ -77,6 +93,7 @@ export class AuthController {
    */
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto);
   }

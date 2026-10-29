@@ -5,20 +5,24 @@
  * y generación de tokens JWT. Utiliza bcrypt para el hash de
  * contraseñas y JWT para la creación de tokens de acceso.
  */
-import { Injectable, ConflictException, UnauthorizedException, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, ConflictException, UnauthorizedException, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
+import { PasswordResetService } from './password-reset.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
     private audit: AuditService,
+    private passwordReset: PasswordResetService,
   ) {}
 
   /**
@@ -88,70 +92,94 @@ export class AuthService {
 
   /**
    * Solicita un token de recuperación de contraseña.
-   * Genera un token JWT con propósito 'password_reset' y lo almacena
-   * en la base de datos con fecha de expiración de 1 hora.
+   * Por seguridad, la respuesta es siempre la misma (exista o no el email)
+   * y NUNCA se devuelve el token al cliente: se envía por correo o el
+   * administrador lo genera desde el módulo de Usuarios.
    *
    * @param dto - Objeto con el email del usuario
-   * @returns Mensaje indicando que si el email existe, se enviará un enlace
+   * @returns Mensaje genérico indicando que si el email existe se enviará un enlace
    */
   async forgotPassword(dto: { email: string }) {
     const email = dto.email.toLowerCase().trim();
+    const respuesta = {
+      success: true,
+      message: 'Si el email está registrado, recibirás un enlace de recuperación. Revisa también la carpeta de spam.',
+    };
+
     const usuario = await this.prisma.usuario.findFirst({
       where: { email, activo: true },
     });
 
-    if (!usuario) {
-      return { success: true, message: 'Si el email está registrado, recibirás un enlace de recuperación' };
-    }
+    // Respuesta idéntica aunque el usuario no exista (evita enumerar cuentas)
+    if (!usuario) return respuesta;
 
-    const token = this.jwt.sign(
-      { id: usuario.id_usuario, purpose: 'password_reset' },
-      { expiresIn: '1h' },
-    );
+    const { emailSent } = await this.passwordReset.createForUser(usuario, { sendEmail: true });
 
-    const expires_at = new Date(Date.now() + 60 * 60 * 1000);
-
-    await this.prisma.passwordResetToken.create({
-      data: { email, token, expires_at },
+    await this.logAudit({
+      userId: usuario.id_usuario,
+      userName: usuario.nombre,
+      action: 'Solicitó recuperación de contraseña',
+      entity: 'Usuario',
+      entityId: usuario.id_usuario,
+      detail: emailSent ? 'Enlace enviado por correo' : 'Enlace generado (SMTP no configurado)',
     });
 
-    return {
-      success: true,
-      message: 'Token generado (modo desarrollo)',
-      token,
-    };
+    return respuesta;
+  }
+
+  /**
+   * Verifica si un token de recuperación es válido, sin consumirlo.
+   * Permite que el frontend muestre un mensaje claro antes de pedir la contraseña.
+   */
+  async validateResetToken(token: string) {
+    const record = await this.passwordReset.findValid(token);
+    return { success: true, valid: true, expires_at: record.expires_at };
   }
 
   /**
    * Restablece la contraseña usando un token de recuperación válido.
    * Verifica que el token exista, no haya sido usado y no esté expirado.
-   * Actualiza la contraseña del usuario y marca el token como usado.
+   * Actualiza la contraseña, invalida todos los tokens del usuario y
+   * registra la acción en auditoría.
    *
    * @param dto - Objeto con el token y la nueva contraseña
    * @returns Mensaje de confirmación de actualización
-   * @throws UnauthorizedException si el token es inválido, usado o expirado
+   * @throws BadRequestException si el token es inválido, usado o expirado
    */
   async resetPassword(dto: { token: string; password: string }) {
-    const record = await this.prisma.passwordResetToken.findUnique({
-      where: { token: dto.token },
-    });
+    const record = await this.passwordReset.findValid(dto.token);
 
-    if (!record || record.used || record.expires_at < new Date()) {
-      throw new UnauthorizedException('Token inválido o expirado');
-    }
+    const usuario = await this.prisma.usuario.findFirst({
+      where: { email: record.email },
+    });
+    if (!usuario) throw new BadRequestException('El enlace no corresponde a un usuario válido');
 
     const password_hash = await bcrypt.hash(dto.password, 12);
 
-    await Promise.all([
+    await this.prisma.$transaction([
       this.prisma.usuario.update({
-        where: { email: record.email },
+        where: { id_usuario: usuario.id_usuario },
         data: { password_hash },
       }),
       this.prisma.passwordResetToken.update({
         where: { id: record.id },
         data: { used: true },
       }),
+      // Cualquier otro enlace pendiente deja de servir
+      this.prisma.passwordResetToken.updateMany({
+        where: { email: record.email, used: false },
+        data: { used: true },
+      }),
     ]);
+
+    await this.logAudit({
+      userId: usuario.id_usuario,
+      userName: usuario.nombre,
+      action: 'Restableció su contraseña',
+      entity: 'Usuario',
+      entityId: usuario.id_usuario,
+      detail: 'Recuperación mediante enlace',
+    });
 
     return { success: true, message: 'Contraseña actualizada con éxito' };
   }
@@ -179,7 +207,34 @@ export class AuthService {
       data: { password_hash },
     });
 
+    await this.logAudit({
+      userId,
+      userName: user.nombre,
+      action: 'Cambió su contraseña',
+      entity: 'Usuario',
+      entityId: userId,
+    });
+
     return { success: true, message: 'Contraseña actualizada' };
+  }
+
+  /**
+   * Registra una acción en auditoría sin interrumpir el flujo principal
+   * si el registro falla.
+   */
+  private async logAudit(params: {
+    userId?: number;
+    userName: string;
+    action: string;
+    entity: string;
+    entityId?: number;
+    detail?: string;
+  }) {
+    try {
+      await this.audit.log(params);
+    } catch (error: any) {
+      this.logger.warn(`No se pudo registrar en auditoría: ${error?.message ?? error}`);
+    }
   }
 
   /**

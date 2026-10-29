@@ -4,11 +4,13 @@
  * Todos los endpoints requieren autenticación JWT y rol de administrador (1).
  * Incluye un DTO interno UpdateUsuarioDto para la actualización parcial de usuarios.
  */
-import { Controller, Get, Patch, Delete, Param, Body, ParseIntPipe, UseGuards, Req, Res, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Body, ParseIntPipe, UseGuards, Req, Res, NotFoundException } from '@nestjs/common';
 import { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { ExportService } from '../common/services/export.service';
+import { MailService } from '../mail/mail.service';
+import { PasswordResetService } from '../auth/password-reset.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -47,6 +49,8 @@ export class UsuariosController {
     private prisma: PrismaService,
     private audit: AuditService,
     private exportService: ExportService,
+    private passwordReset: PasswordResetService,
+    private mail: MailService,
   ) {}
 
   /**
@@ -96,6 +100,51 @@ export class UsuariosController {
       orderBy: { nombre: 'asc' },
     });
     return { success: true, data: usuarios };
+  }
+
+  /**
+   * Genera un enlace de recuperación de contraseña para un usuario.
+   * El enlace se intenta enviar por correo; si el SMTP no está configurado,
+   * se devuelve para que el administrador lo comparta manualmente.
+   * Solo el rol administrador puede usar este endpoint.
+   *
+   * @param id - ID del usuario
+   * @param req - Objeto de solicitud HTTP
+   * @returns Enlace de recuperación, fecha de expiración y estado del envío
+   */
+  @Post(':id/restablecer-password')
+  async generarEnlaceRecuperacion(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { id_usuario: id },
+      select: { id_usuario: true, nombre: true, email: true, activo: true },
+    });
+    if (!usuario) throw new NotFoundException('Usuario no encontrado');
+
+    const { link, expires_at, emailSent } = await this.passwordReset.createForUser(usuario, { sendEmail: true });
+
+    this.audit.log({
+      userId: req.user.id,
+      userName: req.user.nombre,
+      ip: req.ip,
+      action: 'Generó enlace de recuperación',
+      entity: 'Usuario',
+      entityId: id,
+      detail: `${usuario.nombre} — ${emailSent ? 'enviado por correo' : 'compartido manualmente'}`,
+    });
+
+    return {
+      success: true,
+      message: emailSent
+        ? 'Enlace generado y enviado por correo'
+        : 'Enlace generado. Compártelo con el usuario.',
+      data: {
+        link,
+        expires_at,
+        email: usuario.email,
+        email_enviado: emailSent,
+        email_configurado: this.mail.isConfigured,
+      },
+    };
   }
 
   /**

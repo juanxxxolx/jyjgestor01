@@ -105,7 +105,22 @@ PORT=3000
 JWT_SECRET=clave_secreta_segura
 JWT_EXPIRE=7d
 DATABASE_URL=mysql://root:tu_password@localhost:3306/gestor_inventario_db
+FRONTEND_URL=http://localhost:5173
 ```
+
+**Correo (opcional)** — solo necesario para enviar los enlaces de recuperación automáticamente:
+
+```bash
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=tucorreo@gmail.com
+SMTP_PASS=contraseña_de_aplicación
+SMTP_FROM=tucorreo@gmail.com
+```
+
+Si no se configuran estas variables, el sistema sigue funcionando: el administrador
+genera el enlace desde **Usuarios → 🔑** y lo comparte manualmente.
 
 ### 3. Inicializar base de datos
 
@@ -136,6 +151,31 @@ cd frontend && npm run dev
 |-------|-----------|-----|
 | admin@jyjgestor.com | Admin1234$ | Administrador |
 | usuario@jyjgestor.com | Admin1234$ | Usuario |
+
+---
+
+## 🔑 Recuperación de contraseña
+
+Hay dos formas de restablecer una contraseña:
+
+1. **Autoservicio (con correo configurado)**
+   - El usuario entra a *¿Olvidaste tu contraseña?* y escribe su email.
+   - Recibe un enlace de un solo uso, válido por 60 minutos.
+   - Crea su nueva contraseña.
+
+2. **Desde el administrador (siempre disponible)**
+   - Ir a **Usuarios** y pulsar el botón 🔑 del usuario.
+   - Se genera un enlace de un solo uso; se puede copiar y compartir
+     por WhatsApp, correo o en persona.
+   - El enlace vence en 60 minutos y solo sirve una vez.
+
+**Seguridad aplicada**
+
+- La API nunca devuelve el token de recuperación al cliente.
+- Solo puede existir un enlace válido por usuario: al generar uno nuevo, el anterior se invalida.
+- El token se marca como usado y no puede reutilizarse.
+- El endpoint público tiene límite de intentos (5 por minuto) para evitar abusos.
+- Todas las solicitudes y cambios quedan registrados en **Auditoría**.
 
 ---
 

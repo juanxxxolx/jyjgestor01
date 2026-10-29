@@ -71,9 +71,13 @@ export function useUsuarios() {
     mutationFn: (id: number) => usuariosApi.delete(id),
   });
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: (id: number) => usuariosApi.generarEnlaceRecuperacion(id),
+  });
+
   return {
     data, isLoading, modalOpen, editing, form, rolLabel, refetch,
-    createMutation, updateMutation, toggleActivoMutation, deleteMutation,
+    createMutation, updateMutation, toggleActivoMutation, deleteMutation, resetPasswordMutation,
     openCreate, openEdit, closeModal, onFinish,
   };
 }

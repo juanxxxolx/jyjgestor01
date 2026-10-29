@@ -27,6 +27,7 @@ import { ProveedoresModule } from './proveedores/proveedores.module';
 import { ComprasModule } from './compras/compras.module';
 import { AbonosModule } from './abonos/abonos.module';
 import { CierresCajaModule } from './cierres-caja/cierres-caja.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { CierresCajaModule } from './cierres-caja/cierres-caja.module';
     ComprasModule,
     AbonosModule,
     CierresCajaModule,
+    MailModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
