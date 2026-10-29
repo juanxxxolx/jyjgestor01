@@ -96,7 +96,21 @@ export default function ComprasPage() {
                   {fields.map(({ key, name, ...rest }) => (
                     <Space key={key} className={styles.detalleRow} align="baseline">
                       <Form.Item {...rest} name={[name, 'id_producto']} rules={[{ required: true, message: 'Requerido' }]} noStyle>
-                        <Select placeholder="Producto" showSearch optionFilterProp="label" options={productos?.data?.map((p: any) => ({ label: p.nombre, value: p.id_producto }))} />
+                        <Select
+                          placeholder="Buscar por código"
+                          showSearch
+                          optionFilterProp="codigo"
+                          filterOption={(input, option: any) =>
+                            String(option?.codigo ?? '').toLowerCase().includes(input.toLowerCase())
+                          }
+                          notFoundContent="Sin productos con ese código"
+                          style={{ minWidth: 220 }}
+                          options={productos?.data?.map((p: any) => ({
+                            label: `${p.codigo} — ${p.nombre}`,
+                            value: p.id_producto,
+                            codigo: p.codigo,
+                          }))}
+                        />
                       </Form.Item>
                       <Form.Item {...rest} name={[name, 'cantidad']} rules={[{ required: true }]} noStyle>
                         <InputNumber min={1} max={999999} placeholder="Cant" style={{ width: 80 }} />
